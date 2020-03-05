@@ -158,12 +158,8 @@ loader.load(function() {
 	emitter.updateOwnerPos(window.innerWidth / 2, window.innerHeight / 2);
 
 	enterText.mouseover = function(mousedata) {
-		//LEARN HOW TO INTERACT WITH DOUBLY LINKED LISTS TEST AREA ______________
-		emitter._activeParticlesFirst.alpha = 0;
-		console.log(
-			emitter._activeParticlesFirst.visible,
-			emitter._activeParticlesFirst
-		);
+		console.log("_activeParticlesFirst:");
+		console.log(emitter._activeParticlesFirst);
 
 		//-------------------MOUSEOVER: EDIT THE TEXT--------------------
 		this.style.fill = "#FFFFFF";
@@ -173,7 +169,7 @@ loader.load(function() {
 		//-------------------MOUSEOVER: EDIT THE EMITTER------------------
 		if (enterScreenState.clicked === false) {
 			//Creates burst effect
-			emitter.particlesPerWave = 200;
+			emitter.particlesPerWave = 100;
 
 			//Ties into the update function, a smaller number is slower
 			enterScreenState.speedController = 0.0003;
@@ -238,7 +234,7 @@ loader.load(function() {
 	};
 
 	//CLICK FUNCTION
-	enterText.pointerdown = function(event) {
+	enterText.pointerdown = function() {
 		enterScreenState.clicked = true;
 		//placeholder for spaceCowboy
 		this.text === "Clicked"
@@ -247,18 +243,34 @@ loader.load(function() {
 		enterText.interactive = false;
 
 		// edit emitter
+
+		//I SHOULD HAVE A RESET FUNCTION AS I AM USING IT TWICE IN ORDER TO HAVE DRY CODE
 		//WANT TO SLOW DOWN THE PARTICLES
 		emitter.minimumSpeedMultiplier = 3;
 		emitter.particlesPerWave = 1;
 		// emitter.acceleration = new PIXI.Point(0, 180);
 		emitter.minLifetime = 3;
 		emitter.maxLifetime = 3;
-		enterScreenState.speedController = 0.016;
-		setTimeout(function() {
-			enterScreenState.speedController = 0.0004;
-			// emitter.minLifetime = 3;
-			// emitter.maxLifetime = 3;
-		}, 1);
+
+		var particle, next;
+		for (particle = emitter._activeParticlesFirst; particle; particle = next) {
+			next = particle.next;
+			// emitter.recycle(particle);
+			// if (particle.parent) particle.parent.removeChild(particle);
+			// particle.x = window.innerWidth / 2;
+			// particle.y = window.innerHeight / 2;
+
+			//WHY DOES THIS NOT WORK???? ---- particle.acceleration = { x: 0, y: 180 };
+			// console.log(particle.acceleration);
+		}
+
+		//OLD CODE THAT I USED TO TRY JUMP TIME BEFORE UNDERSTANDING LINKED LIST DATA STRUCTURES
+		// enterScreenState.speedController = 0.016;
+		// setTimeout(function() {
+		// 	enterScreenState.speedController = 0.0004;
+		// 	// emitter.minLifetime = 3;
+		// 	// emitter.maxLifetime = 3;
+		// }, 1);
 
 		emitter.spawnCircle = { x: -2, y: 0, radius: 200, type: 2, minRadius: 190 };
 
@@ -288,60 +300,4 @@ window.destroyEmitter = function() {
 	emitter.destroy();
 	emitter = null;
 	window.destroyEmitter = null;
-};
-
-//CLICKED EMITTER
-var configClicked = {
-	alpha: {
-		start: 1,
-		end: 0.5
-	},
-	scale: {
-		start: 0.12,
-		end: 0.01,
-		minimumScaleMultiplier: 1
-	},
-	color: {
-		start: "#ffffff",
-		end: "#0abab5 "
-	},
-	speed: {
-		start: 100,
-		end: 50,
-		minimumSpeedMultiplier: 1
-	},
-	acceleration: {
-		x: 0,
-		y: 180
-	},
-	maxSpeed: 0,
-	startRotation: {
-		min: 90,
-		max: 0
-	},
-	noRotation: false,
-	rotationSpeed: {
-		min: 500,
-		max: 500
-	},
-	lifetime: {
-		min: 2,
-		max: 2
-	},
-	blendMode: "normal",
-	frequency: 0.001,
-	emitterLifetime: -1,
-	maxParticles: 5000,
-	pos: {
-		x: 0,
-		y: 0
-	},
-	addAtBack: true,
-	spawnType: "ring",
-	spawnCircle: {
-		x: -2,
-		y: 0,
-		r: 160,
-		minR: 150
-	}
 };
