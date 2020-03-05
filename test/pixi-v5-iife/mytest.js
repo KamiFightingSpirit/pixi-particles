@@ -167,15 +167,14 @@ loader.load(function() {
 			emitter._activeParticlesFirst.visible,
 			emitter._activeParticlesFirst
 		);
-		//-------------------EDIT THE TEXT--------------------
+		//-------------------MOUSEOVER: EDIT THE TEXT--------------------
 		this.style.fill = "#FFFFFF";
 		this.style.fontSize = 21;
 
-		//-------------------EDIT THE EMITTER------------------
-
+		//-------------------MOUSEOVER: EDIT THE EMITTER------------------
 		if (enterScreenState.clicked === false) {
 			//Creates burst effect
-			emitter.particlesPerWave = 5000;
+			emitter.particlesPerWave = 2000;
 
 			//Ties into the update function, a smaller number is slower
 			enterScreenState.speedController = 0.0003;
@@ -217,11 +216,11 @@ loader.load(function() {
 
 	enterText.mouseout = function(mousedata) {
 		if (enterScreenState.clicked === false) {
-			//-------------------RESET THE TEXT---------------------
+			//-------------------MOUSEOUT: RESET THE TEXT---------------------
 			this.style.fill = "silver";
 			this.style.fontSize = 20;
 
-			//-------------------RESET THE EMITTER------------------
+			//-------------------MOUSEOUT: RESET THE EMITTER------------------
 			emitter.particlesPerWave = 1;
 			enterScreenState.speedController = 0.001;
 			emitter.spawnCircle = {
@@ -249,17 +248,22 @@ loader.load(function() {
 
 		// edit emitter
 		//WANT TO SLOW DOWN THE PARTICLES
+		emitter.minimumSpeedMultiplier = 3;
 		emitter.particlesPerWave = 1;
 		// emitter.acceleration = new PIXI.Point(0, 180);
-		enterScreenState.speedController = 0.016;
-		emitter.spawnCircle = { x: -2, y: 0, radius: 200, type: 2, minRadius: 190 };
 		emitter.minLifetime = 3;
 		emitter.maxLifetime = 3;
-		// speedController = 0.0015;
-		emitter.minimumScaleMultiplier = 5;
+		enterScreenState.speedController = 0.016;
 		setTimeout(function() {
 			enterScreenState.speedController = 0.0004;
+			// emitter.minLifetime = 3;
+			// emitter.maxLifetime = 3;
 		}, 1);
+
+		emitter.spawnCircle = { x: -2, y: 0, radius: 200, type: 2, minRadius: 190 };
+
+		// speedController = 0.0015;
+		emitter.minimumScaleMultiplier = 5;
 	};
 	// Start the update
 	update();
