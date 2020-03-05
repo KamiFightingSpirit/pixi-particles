@@ -130,9 +130,7 @@ loader.load(function() {
 
 	// Create the new emitter and attach it to the stage
 	var emitterContainer = new PIXI.Container();
-
 	stage.addChild(emitterContainer);
-
 	window.emitter = emitter = new PIXI.particles.Emitter(
 		emitterContainer,
 		art,
@@ -144,13 +142,12 @@ loader.load(function() {
 	stage.addChild(textContainer);
 
 	//Create the welcome text and position it
-	window.enterText = enterText = new PIXI.Text("- Enter -", {
+	window.enterText = enterText = new PIXI.Text("- Hover -", {
 		fontFamily: "Arial",
 		fontSize: 20,
 		fill: "silver"
 	});
-	enterText.anchor.x = 0.5;
-	enterText.anchor.y = 0.5;
+	enterText.anchor.set(0.5);
 	enterText.interactive = true;
 	enterText.cursor = "pointer";
 	textContainer.addChild(enterText);
@@ -161,20 +158,22 @@ loader.load(function() {
 	emitter.updateOwnerPos(window.innerWidth / 2, window.innerHeight / 2);
 
 	enterText.mouseover = function(mousedata) {
-		//LEARN HOW TO INTERACT WITH DOUBLY LINKED LISTS
+		//LEARN HOW TO INTERACT WITH DOUBLY LINKED LISTS TEST AREA ______________
 		emitter._activeParticlesFirst.alpha = 0;
 		console.log(
 			emitter._activeParticlesFirst.visible,
 			emitter._activeParticlesFirst
 		);
+
 		//-------------------MOUSEOVER: EDIT THE TEXT--------------------
 		this.style.fill = "#FFFFFF";
 		this.style.fontSize = 21;
+		this.text = "- Enter -";
 
 		//-------------------MOUSEOVER: EDIT THE EMITTER------------------
 		if (enterScreenState.clicked === false) {
 			//Creates burst effect
-			emitter.particlesPerWave = 2000;
+			emitter.particlesPerWave = 200;
 
 			//Ties into the update function, a smaller number is slower
 			enterScreenState.speedController = 0.0003;
@@ -245,6 +244,7 @@ loader.load(function() {
 		this.text === "Clicked"
 			? (this.text = "- Enter -")
 			: (this.text = "See You Space Cowboy");
+		enterText.interactive = false;
 
 		// edit emitter
 		//WANT TO SLOW DOWN THE PARTICLES
