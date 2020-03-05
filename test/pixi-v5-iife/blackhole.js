@@ -97,13 +97,13 @@ delta += 0.1;
 */
 
 //Set a delta variable (may want to move this outside of global?)
-let delta = 0;
+// let delta = 0;
 let speedController = 0.001;
 
 // Update function every frame
 var update = function() {
 	// Update the next frame
-	delta += 0.1;
+	// delta += 0.1;
 	updateId = requestAnimationFrame(update);
 	var now = Date.now();
 	if (emitter)
@@ -259,9 +259,14 @@ loader.load(function() {
 			// if (particle.parent) particle.parent.removeChild(particle);
 			// particle.x = window.innerWidth / 2;
 			// particle.y = window.innerHeight / 2;
-
+			// particle.rotationSpeed(1000);
 			//WHY DOES THIS NOT WORK???? ---- particle.acceleration = { x: 0, y: 180 };
 			// console.log(particle.acceleration);
+
+			if (particle.next === null) {
+				console.log(particle);
+				console.log(particle.transform.rotation);
+			}
 		}
 
 		//OLD CODE THAT I USED TO TRY JUMP TIME BEFORE UNDERSTANDING LINKED LIST DATA STRUCTURES
