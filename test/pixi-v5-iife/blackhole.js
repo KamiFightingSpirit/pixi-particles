@@ -95,8 +95,7 @@ var simpleTicker = 0; //dicking around
 
 // Update function every frame
 var update = function() {
-	//
-	simpleTicker += 0.1;
+	simpleTicker += 1;
 	var now = Date.now();
 	delta = now - elapsed; //16 or 17 (1000/60 fps?)
 
@@ -109,21 +108,27 @@ var update = function() {
 		emitter.spawnCircle = {
 			x: -2,
 			y: 0,
-			radius: 190 + radiusTicker,
+			radius: 170 + radiusTicker,
 			type: 2,
-			minRadius: 160 + radiusTicker
+			minRadius: 150 + radiusTicker
 		};
 		//dick around with expanding particle scale
-		for (particle = emitter._activeParticlesFirst; particle; particle = next) {
-			// particle.transform.scale.x =
-			// 	particle.transform.scale.x + particleScaleTicker;
-			particle.transform.scale.x = Math.sin(simpleTicker) / 10;
-			next = particle.next; //n+1 = null, thus for loop will fail due falsy
 
-			// if (particle.next === null) {
-			// 	// console.log(particle.transform.scale.x);
-			// }
-		}
+		// if (simpleTicker % 20 === 0) {
+		// 	for (
+		// 		particle = emitter._activeParticlesFirst;
+		// 		particle;
+		// 		particle = next
+		// 	) {
+		// 		particle.scale.x = 1 + Math.sin(simpleTicker) / 10;
+		// 		particle.transform.scale.y = 1 + Math.sin(simpleTicker) / 10;
+		// 		next = particle.next; //n+1 = null, thus for loop will fail due falsy
+		// 	}
+
+		// if (particle.next === null) {
+		// 	console.log(particle.transform.scale.x);
+		// }
+		// }
 	}
 
 	// Update the emitter's next frame
@@ -259,17 +264,18 @@ loader.load(function() {
 		emitter.particlesPerWave = 1;
 		emitter.minLifetime = 3;
 		emitter.maxLifetime = 3;
-		emitter.spawnCircle = { x: -2, y: 0, radius: 190, type: 2, minRadius: 180 };
+		// emitter.spawnCircle = { x: -2, y: 0, radius: 190, type: 2, minRadius: 180 };
 		emitter.minimumScaleMultiplier = 5;
 		// speedController = 0.0015;
 
-		// var particle, next;
-		// for (particle = emitter._activeParticlesFirst; particle; particle = next) {
-		// 	next = particle.next;
-		// 	// console.log(particle.age);
-		// 	if (particle.age < 1.7) {
-		// 		particle.age = 0.5;
-		// 	}
+		var particle, next;
+		for (particle = emitter._activeParticlesFirst; particle; particle = next) {
+			next = particle.next;
+
+			if (particle.age < 0.6) {
+				particle.age = 0.6;
+			}
+		}
 
 		// 	// emitter.recycle(particle);
 		// 	// if (particle.parent) particle.parent.removeChild(particle);
@@ -298,6 +304,11 @@ window.onresize = function() {
 	emitter.updateOwnerPos(renderer.screen.width / 2, renderer.screen.height / 2);
 	enterText.parent.x = renderer.screen.width / 2;
 	enterText.parent.y = renderer.screen.height / 2;
+
+	for (particle = emitter._activeParticlesFirst; particle; particle = next) {
+		next = particle.next;
+		particle.kill();
+	}
 };
 window.addEventListener("resize", window.onresize());
 
