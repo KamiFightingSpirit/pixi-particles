@@ -5,9 +5,7 @@ var imagePaths = ["../../docs/examples/images/particle.png"];
 PIXI.utils.skipHello(); // remove pixi message in console log
 
 let enterScreenState = {
-	clicked: false,
-	delta: 0,
-	speedController: 0.001
+	clicked: false
 };
 
 //Config for the emitter - https://pixijs.io/pixi-particles-editor/
@@ -87,24 +85,27 @@ var stage = new PIXI.Container(),
 
 // Calculate the current time
 var elapsed = Date.now();
-var updateId;
-
-/* 
-delta += 0.1;
-        sprite1.y = Math.sin(delta) * 10;
-        we add 100 so that it oscillates from it's y position set above
-		sprite1.x = app.renderer.width / 2 + Math.sin(delta) * 10; 
-*/
-
-//Set a delta variable (may want to move this outside of global?)
-
-let speedController = 0.001;
-let radiusTicker = 0;
+// Setup needed ticker variables
+var updateId, delta;
+let speedController = 0.001; //controls the speed of emitter, the greater the number the faster it is
+let radiusTicker = 0; //used to expand radius post enterText click
+let particleScaleTicker = 0; //dicking around
+var particle, next; //dicking around
+var simpleTicker = 0; //dicking around
 
 // Update function every frame
 var update = function() {
+	//
+	simpleTicker += 0.1;
+	var now = Date.now();
+	delta = now - elapsed; //16 or 17 (1000/60 fps?)
+
 	if (enterScreenState.clicked === true) {
-		radiusTicker += 0.1;
+		//ticker setup
+		radiusTicker += 10 / delta;
+		particleScaleTicker += 50 / delta;
+
+		//Expand radius
 		emitter.spawnCircle = {
 			x: -2,
 			y: 0,
@@ -112,30 +113,27 @@ var update = function() {
 			type: 2,
 			minRadius: 160 + radiusTicker
 		};
+		//dick around with expanding particle scale
+		for (particle = emitter._activeParticlesFirst; particle; particle = next) {
+			// particle.transform.scale.x =
+			// 	particle.transform.scale.x + particleScaleTicker;
+			particle.transform.scale.x = Math.sin(simpleTicker) / 10;
+			next = particle.next; //n+1 = null, thus for loop will fail due falsy
+
+			// if (particle.next === null) {
+			// 	// console.log(particle.transform.scale.x);
+			// }
+		}
 	}
 
-	// Update the next frame
+	// Update the emitter's next frame
 	updateId = requestAnimationFrame(update);
-	var now = Date.now();
-	if (emitter)
-		emitter.update((now - elapsed) * enterScreenState.speedController); //This 0.001 controls the speed of emitter, the greater the number the faster it is
-
+	if (emitter) emitter.update(delta * speedController);
 	elapsed = now;
+	// render the stage
 	renderer.render(stage);
 
-	//PRETTY CRAZY EFFECT TO MESS AROUND WITH THE SCALE
-	// if (enterScreenState.clicked === true) {
-	// 	var particle, next;
-	// 	for (particle = emitter._activeParticlesFirst; particle; particle = next) {
-	// 		next = particle.next;
-	// 		particle.transform.scale.x = Math.sin(delta);
-	// 	}
-
 	// emitter.parent.transform.skew.x = Math.sin(delta) / 100;
-	// emitter.parent.transform.rotation = Math.sin(delta) / 100;
-
-	// emitter.parent.rotation += 0.1;
-	// render the stage
 };
 
 // Preload the particle images and create PIXI textures from it
@@ -192,7 +190,7 @@ loader.load(function() {
 			emitter.particlesPerWave = 500;
 
 			//Ties into the update function, a smaller number is slower
-			enterScreenState.speedController = 0.0003;
+			speedController = 0.0003;
 
 			//this is pretty good, problem is needs to ease-in
 			// emitter.startScale.value = 0.5;
@@ -238,7 +236,7 @@ loader.load(function() {
 
 			//-------------------MOUSEOUT: RESET THE EMITTER------------------
 			emitter.particlesPerWave = 1;
-			enterScreenState.speedController = 0.001;
+			speedController = 0.001;
 			emitter.spawnCircle = {
 				x: -2,
 				y: 0,
@@ -273,33 +271,25 @@ loader.load(function() {
 		emitter.minLifetime = 3;
 		emitter.maxLifetime = 3;
 
-		var particle, next;
-		for (particle = emitter._activeParticlesFirst; particle; particle = next) {
-			next = particle.next;
-			// console.log(particle.age);
-			if (particle.age < 1.7) {
-				particle.age = 0.5;
-			}
+		// var particle, next;
+		// for (particle = emitter._activeParticlesFirst; particle; particle = next) {
+		// 	next = particle.next;
+		// 	// console.log(particle.age);
+		// 	if (particle.age < 1.7) {
+		// 		particle.age = 0.5;
+		// 	}
 
-			// emitter.recycle(particle);
-			// if (particle.parent) particle.parent.removeChild(particle);
-			// particle.x = window.innerWidth / 2;
-			// particle.y = window.innerHeight / 2;
-			// particle.rotationSpeed(1000);
+		// 	// emitter.recycle(particle);
+		// 	// if (particle.parent) particle.parent.removeChild(particle);
+		// 	// particle.x = window.innerWidth / 2;
+		// 	// particle.y = window.innerHeight / 2;
+		// 	// particle.rotationSpeed(1000);
 
-			if (particle.next === null) {
-				console.log(particle);
-				console.log(particle.transform.rotation);
-			}
-		}
-
-		//OLD CODE THAT I USED TO TRY JUMP TIME BEFORE UNDERSTANDING LINKED LIST DATA STRUCTURES
-		// enterScreenState.speedController = 0.016;
-		// setTimeout(function() {
-		// 	enterScreenState.speedController = 0.0004;
-		// 	// emitter.minLifetime = 3;
-		// 	// emitter.maxLifetime = 3;
-		// }, 1);
+		// 	if (particle.next === null) {
+		// 		console.log(particle);
+		// 		console.log(particle.transform.rotation);
+		// 	}
+		// }
 
 		emitter.spawnCircle = { x: -2, y: 0, radius: 190, type: 2, minRadius: 180 };
 
