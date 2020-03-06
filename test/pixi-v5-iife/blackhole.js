@@ -1,6 +1,8 @@
 /// <reference path="node_modules/pixi-particles/ambient.d.ts" />
 /// <reference path="node_modules/pixi.js/pixi.js.d.ts" />
 
+<script type="text/javascript" src="tween.js"></script>;
+
 var imagePaths = ["../../docs/examples/images/particle.png"];
 PIXI.utils.skipHello(); // remove pixi message in console
 
@@ -89,20 +91,17 @@ var elapsed = Date.now();
 var updateId, delta;
 let speedController = 0.001; //controls the speed of emitter, the greater the number the faster it is
 let radiusTicker = 0; //used to expand radius post enterText click
-let particleScaleTicker = 0; //dicking around
-var particle, next; //dicking around
-var simpleTicker = 0; //dicking around
+// var particle, next; //dicking around
+let targetAlpha = 1;
 
 // Update function every frame
 var update = function() {
-	simpleTicker += 1;
 	var now = Date.now();
 	delta = now - elapsed; //16 or 17 (1000/60 fps?)
 
 	if (enterScreenState.clicked === true) {
 		//ticker setup
 		radiusTicker += 10 / delta;
-		particleScaleTicker += 50 / delta;
 
 		//Expand radius
 		emitter.spawnCircle = {
@@ -110,8 +109,9 @@ var update = function() {
 			y: 0,
 			radius: 170 + radiusTicker,
 			type: 2,
-			minRadius: 150 + radiusTicker / 6
+			minRadius: 150 + radiusTicker / 10
 		};
+
 		//dick around with expanding particle scale
 
 		// if (simpleTicker % 20 === 0) {
@@ -140,24 +140,12 @@ var update = function() {
 	// emitter.parent.transform.skew.x = Math.sin(delta) / 100;
 };
 
-//LOADER IS NOT SETUP CORRECTLY
+//LOADER IS NOT SETUP CORRECTLY Dont think it is even really being used right now.
 //the loader allows pixi to execute actions only when the required utilities are ready
 var loader = PIXI.Loader.shared;
 // loader.add(imagePaths);
 
 loader.load(function() {
-	//collect the textures, now that they are all loaded
-	var art = imagePaths;
-
-	// Create the new emitter and attach it to the stage
-	var emitterContainer = new PIXI.Container();
-	stage.addChild(emitterContainer);
-	window.emitter = emitter = new PIXI.particles.Emitter(
-		emitterContainer,
-		art,
-		config
-	);
-
 	//Create the container to hold the welcome text
 	var textContainer = new PIXI.Container();
 	stage.addChild(textContainer);
@@ -172,6 +160,18 @@ loader.load(function() {
 	enterText.interactive = true;
 	enterText.cursor = "pointer";
 	textContainer.addChild(enterText);
+
+	//collect the textures, now that they are all loaded - but this isn't even accessing loader LOLLLL
+	var art = imagePaths;
+
+	// Create the new emitter and attach it to the stage
+	var emitterContainer = new PIXI.Container();
+	stage.addChild(emitterContainer);
+	window.emitter = emitter = new PIXI.particles.Emitter(
+		emitterContainer,
+		art,
+		config
+	);
 
 	// Center all containers on the stage
 	enterText.parent.x = window.innerWidth / 2;
@@ -241,11 +241,14 @@ let enterTextExitEffects = function() {
 let enterTextClickEffects = function() {
 	//update enterScreenState
 	enterScreenState.clicked = true;
+	//stop user from clicking creating additional effects
+	enterText.parent.destroy();
+	enterText.destroy();
+	spaceCowboy();
 	//placeholder for spaceCowboy
 	this.text === "Clicked"
 		? (this.text = "- Enter -")
 		: (this.text = "See You Space Cowboy");
-	enterText.interactive = false;
 
 	//-------------------MOUSECLICK: EDIT THE EMITTER------------------
 	emitter.minimumSpeedMultiplier = 3;
@@ -307,5 +310,43 @@ window.destroyEmitter = function() {
 console.log(
 	emitter,
 	"_activeParticlesFirst:",
-	setTimeout(() => console.log(emitter._activeParticlesFirst), 100)
+	setTimeout(() => console.log(emitter._activeParticlesFirst), 10)
 );
+
+spaceCowboy = function() {
+	this.sCowboyContainer = new PIXI.Container();
+	stage.addChild(sCowboyContainer);
+	spaceCowboyStyle = {
+		fontFamily: "Verdana",
+		fontSize: 45,
+		fill: "silver",
+		fontWeight: 700
+	};
+	spaceCowboyOne = new PIXI.Text("See", spaceCowboyStyle);
+	spaceCowboyTwo = new PIXI.Text("You", spaceCowboyStyle);
+	spaceCowboyThree = new PIXI.Text("Space", spaceCowboyStyle);
+	spaceCowboyFour = new PIXI.Text("Cowboy", spaceCowboyStyle);
+	sCowboyContainer.addChild(
+		spaceCowboyOne,
+		spaceCowboyTwo,
+		spaceCowboyThree,
+		spaceCowboyFour
+	);
+
+	//might want to just position the container higher and kick this off at 0, HAHAHAHAHAHAHAH
+	let posY = 0;
+	sCowboyContainer.children.map(sCowboyText => {
+		sCowboyText.anchor.set(0.5, 0.5);
+		sCowboyText.position.set(0, posY);
+		posY += 50;
+		sCowboyText.alpha = 0.1;
+	});
+
+	sCowboyContainer.position = {
+		x: window.innerWidth / 2,
+		y: window.innerHeight / 2 - sCowboyContainer.height / 2 + 10 //offset to center children
+	};
+
+	//temp printout
+	console.log(sCowboyContainer.children[0]);
+};
