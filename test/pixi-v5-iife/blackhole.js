@@ -210,8 +210,7 @@ loader.load(function() {
 		}
 
 		/*
-		GOOD SETTINGS:
-		
+		GOOD SETTINGS:		
 		emitter.particlesPerWave = 500;
 		speedController = 0.0003;
 		emitter.spawnCircle = { x: -2, y: 0, radius: 160, type: 2, minRadius: 140 };	
@@ -219,11 +218,6 @@ loader.load(function() {
 		emitter.maxLifetime = 0.82;	
 		*/
 
-		//this one only works once, can't reset
-		// emitter.minimumScaleMultiplier = 5;
-
-		// emitter.startScale.next.value = 0.2;
-		// emitter.startScale.next.time = 4;
 		//this one looks quite good: creates a burst effect -- can also do this via particlesPerWave
 		// emitter.frequency = 0.00000000000001;
 	};
@@ -246,9 +240,6 @@ loader.load(function() {
 			};
 			emitter.minLifetime = 2;
 			emitter.maxLifetime = 2;
-
-			// emitter.startScale.value = 0.1; //this works but is sudden, need ease
-			// emitter.minimumScaleMultiplier = 1;
 		}
 	};
 
@@ -264,12 +255,13 @@ loader.load(function() {
 		// edit emitter
 
 		//I SHOULD HAVE A RESET FUNCTION AS I AM USING IT TWICE IN ORDER TO HAVE DRY CODE
-		//WANT TO SLOW DOWN THE PARTICLES
 		emitter.minimumSpeedMultiplier = 3;
 		emitter.particlesPerWave = 1;
-		// emitter.acceleration = new PIXI.Point(0, 180);
 		emitter.minLifetime = 3;
 		emitter.maxLifetime = 3;
+		emitter.spawnCircle = { x: -2, y: 0, radius: 190, type: 2, minRadius: 180 };
+		emitter.minimumScaleMultiplier = 5;
+		// speedController = 0.0015;
 
 		// var particle, next;
 		// for (particle = emitter._activeParticlesFirst; particle; particle = next) {
@@ -290,11 +282,6 @@ loader.load(function() {
 		// 		console.log(particle.transform.rotation);
 		// 	}
 		// }
-
-		emitter.spawnCircle = { x: -2, y: 0, radius: 190, type: 2, minRadius: 180 };
-
-		// speedController = 0.0015;
-		emitter.minimumScaleMultiplier = 5;
 	};
 	// Start the update
 	update();
