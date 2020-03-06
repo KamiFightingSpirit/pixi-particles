@@ -97,24 +97,45 @@ delta += 0.1;
 */
 
 //Set a delta variable (may want to move this outside of global?)
-// let delta = 0;
+
 let speedController = 0.001;
+let radiusTicker = 0;
 
 // Update function every frame
 var update = function() {
+	if (enterScreenState.clicked === true) {
+		radiusTicker += 0.1;
+		emitter.spawnCircle = {
+			x: -2,
+			y: 0,
+			radius: 190 + radiusTicker,
+			type: 2,
+			minRadius: 160 + radiusTicker
+		};
+	}
+
 	// Update the next frame
-	// delta += 0.1;
 	updateId = requestAnimationFrame(update);
 	var now = Date.now();
 	if (emitter)
 		emitter.update((now - elapsed) * enterScreenState.speedController); //This 0.001 controls the speed of emitter, the greater the number the faster it is
+
 	elapsed = now;
+	renderer.render(stage);
+
+	//PRETTY CRAZY EFFECT TO MESS AROUND WITH THE SCALE
+	// if (enterScreenState.clicked === true) {
+	// 	var particle, next;
+	// 	for (particle = emitter._activeParticlesFirst; particle; particle = next) {
+	// 		next = particle.next;
+	// 		particle.transform.scale.x = Math.sin(delta);
+	// 	}
+
 	// emitter.parent.transform.skew.x = Math.sin(delta) / 100;
 	// emitter.parent.transform.rotation = Math.sin(delta) / 100;
 
 	// emitter.parent.rotation += 0.1;
 	// render the stage
-	renderer.render(stage);
 };
 
 // Preload the particle images and create PIXI textures from it
@@ -158,8 +179,7 @@ loader.load(function() {
 	emitter.updateOwnerPos(window.innerWidth / 2, window.innerHeight / 2);
 
 	enterText.mouseover = function(mousedata) {
-		console.log("_activeParticlesFirst:");
-		console.log(emitter._activeParticlesFirst);
+		console.log("_activeParticlesFirst:", emitter._activeParticlesFirst);
 
 		//-------------------MOUSEOVER: EDIT THE TEXT--------------------
 		this.style.fill = "#FFFFFF";
@@ -169,7 +189,7 @@ loader.load(function() {
 		//-------------------MOUSEOVER: EDIT THE EMITTER------------------
 		if (enterScreenState.clicked === false) {
 			//Creates burst effect
-			emitter.particlesPerWave = 100;
+			emitter.particlesPerWave = 500;
 
 			//Ties into the update function, a smaller number is slower
 			enterScreenState.speedController = 0.0003;
@@ -193,11 +213,12 @@ loader.load(function() {
 
 		/*
 		GOOD SETTINGS:
-		emitter.minLifetime = 0.82;
-		emitter.maxLifetime = 0.82;
-		emitter.particlesPerWave = 5000;
+		
+		emitter.particlesPerWave = 500;
 		speedController = 0.0003;
-		emitter.spawnCircle = { x: -2, y: 0, radius: 160, type: 2, minRadius: 140 };		
+		emitter.spawnCircle = { x: -2, y: 0, radius: 160, type: 2, minRadius: 140 };	
+		emitter.minLifetime = 0.82;
+		emitter.maxLifetime = 0.82;	
 		*/
 
 		//this one only works once, can't reset
@@ -255,13 +276,16 @@ loader.load(function() {
 		var particle, next;
 		for (particle = emitter._activeParticlesFirst; particle; particle = next) {
 			next = particle.next;
+			// console.log(particle.age);
+			if (particle.age < 1.7) {
+				particle.age = 0.5;
+			}
+
 			// emitter.recycle(particle);
 			// if (particle.parent) particle.parent.removeChild(particle);
 			// particle.x = window.innerWidth / 2;
 			// particle.y = window.innerHeight / 2;
 			// particle.rotationSpeed(1000);
-			//WHY DOES THIS NOT WORK???? ---- particle.acceleration = { x: 0, y: 180 };
-			// console.log(particle.acceleration);
 
 			if (particle.next === null) {
 				console.log(particle);
@@ -277,7 +301,7 @@ loader.load(function() {
 		// 	// emitter.maxLifetime = 3;
 		// }, 1);
 
-		emitter.spawnCircle = { x: -2, y: 0, radius: 200, type: 2, minRadius: 190 };
+		emitter.spawnCircle = { x: -2, y: 0, radius: 190, type: 2, minRadius: 180 };
 
 		// speedController = 0.0015;
 		emitter.minimumScaleMultiplier = 5;
