@@ -1,7 +1,5 @@
-/// <reference path="node_modules/pixi-particles/ambient.d.ts" />
-/// <reference path="node_modules/pixi.js/pixi.js.d.ts" />
-
-<script type="text/javascript" src="tween.js"></script>;
+// / <reference path="node_modules/pixi-particles/ambient.d.ts" />
+// / <reference path="node_modules/pixi.js/pixi.js.d.ts" />
 
 var imagePaths = ["../../docs/examples/images/particle.png"];
 PIXI.utils.skipHello(); // remove pixi message in console
@@ -95,21 +93,22 @@ let radiusTicker = 0; //used to expand radius post enterText click
 let targetAlpha = 1;
 
 // Update function every frame
-var update = function() {
+var update = function(time) {
+	// TWEEN.update(time);
 	var now = Date.now();
 	delta = now - elapsed; //16 or 17 (1000/60 fps?)
 
+	//check if user has clicked enterText
 	if (enterScreenState.clicked === true) {
 		//ticker setup
 		radiusTicker += 10 / delta;
-
 		//Expand radius
 		emitter.spawnCircle = {
 			x: -2,
 			y: 0,
-			radius: 170 + radiusTicker,
+			radius: 210 + radiusTicker,
 			type: 2,
-			minRadius: 150 + radiusTicker / 10
+			minRadius: 170 + radiusTicker / 7
 		};
 
 		//dick around with expanding particle scale
@@ -134,6 +133,8 @@ var update = function() {
 	updateId = requestAnimationFrame(update);
 	if (emitter) emitter.update(delta * speedController);
 	elapsed = now;
+	//update all TWEENs
+	TWEEN.update();
 	// render the stage
 	renderer.render(stage);
 
@@ -172,6 +173,8 @@ loader.load(function() {
 		art,
 		config
 	);
+	emitter.parent.pivot.set =
+		(emitter.parent.width / 2, emitter.parent.height / 2);
 
 	// Center all containers on the stage
 	enterText.parent.x = window.innerWidth / 2;
@@ -313,19 +316,26 @@ console.log(
 	setTimeout(() => console.log(emitter._activeParticlesFirst), 10)
 );
 
+//Create the spaceCowboy text
 spaceCowboy = function() {
+	//Setup container to hold all our text
 	this.sCowboyContainer = new PIXI.Container();
 	stage.addChild(sCowboyContainer);
+	//Create a variable to directly access the text objects in the container
+	let sCowboyChildren = sCowboyContainer.children;
+	//object to be used for styling the text
 	spaceCowboyStyle = {
 		fontFamily: "Verdana",
 		fontSize: 45,
 		fill: "silver",
 		fontWeight: 700
 	};
+	//create the individual text lines
 	spaceCowboyOne = new PIXI.Text("See", spaceCowboyStyle);
 	spaceCowboyTwo = new PIXI.Text("You", spaceCowboyStyle);
 	spaceCowboyThree = new PIXI.Text("Space", spaceCowboyStyle);
 	spaceCowboyFour = new PIXI.Text("Cowboy", spaceCowboyStyle);
+	//add them to their parent container
 	sCowboyContainer.addChild(
 		spaceCowboyOne,
 		spaceCowboyTwo,
@@ -333,20 +343,62 @@ spaceCowboy = function() {
 		spaceCowboyFour
 	);
 
-	//might want to just position the container higher and kick this off at 0, HAHAHAHAHAHAHAH
-	let posY = 0;
-	sCowboyContainer.children.map(sCowboyText => {
+	//Position the text within the container
+	let posY = 0; //Used to seperate each text line
+	let startAlpha = 0.01; //used as our starting point for alpha
+	sCowboyChildren.map(sCowboyText => {
 		sCowboyText.anchor.set(0.5, 0.5);
 		sCowboyText.position.set(0, posY);
 		posY += 50;
-		sCowboyText.alpha = 0.1;
+		sCowboyText.alpha = startAlpha;
 	});
-
+	//center the container on the stage
 	sCowboyContainer.position = {
 		x: window.innerWidth / 2,
-		y: window.innerHeight / 2 - sCowboyContainer.height / 2 + 10 //offset to center children
+		y: window.innerHeight / 2 - sCowboyContainer.height / 2 + 10 //offset to center children -- not sure if hard coding is good practice
 	};
 
-	//temp printout
-	console.log(sCowboyContainer.children[0]);
+	//now that we have our text container all setup, let's call the function for spaceCowboyAnimation
+	spaceCowboyAnimation(sCowboyChildren);
 };
+
+//Animates spaceCowboyText
+function spaceCowboyAnimation(sCowboyChildren) {
+	//temp printout of a PIXI.Text
+	console.log(sCowboyChildren[0]);
+
+	let lineDelay = 400; //used to delay alpha tween between each line
+	let targetAlpha = 0.8;
+	//create our tweens to interact with our array of PIXI.Text
+	let tweenTest = new TWEEN.Tween(sCowboyChildren[0])
+		.to({ alpha: 0 }, 2000)
+		.to({ alpha: targetAlpha }, 2000)
+		.start();
+	let tweenTest2 = new TWEEN.Tween(sCowboyChildren[1])
+		.to({ alpha: 0 }, 2000)
+		.to({ alpha: targetAlpha }, 2000)
+		.delay(450)
+		.start();
+
+	let tweenTest3 = new TWEEN.Tween(sCowboyChildren[2])
+		.to({ alpha: 0 }, 2000)
+		.to({ alpha: targetAlpha }, 2000)
+		.delay(900)
+		.start();
+
+	let tweenTest4 = new TWEEN.Tween(sCowboyChildren[3])
+		.to({ alpha: 0 }, 2000)
+		.to({ alpha: targetAlpha }, 2000)
+		.delay(1350)
+		.start();
+
+	//EVENTUALLY I WILL WANT THIS TO BE IN A LOOP FOR DRY CODE PLEASE
+	// let tweenTest = new TWEEN();
+	// sCowboyChildren.map(sCowboyText => {
+	// 	tweenTest
+	// 		.Tween(sCowboyText)
+	// 		.to({ alpha: 0 }, 2000)
+	// 		.to({ alpha: 1 }, 2000)
+	// 		.start();
+	// });
+}
