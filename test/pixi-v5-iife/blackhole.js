@@ -326,7 +326,7 @@ spaceCowboy = function() {
 	//object to be used for styling the text
 	spaceCowboyStyle = {
 		fontFamily: "Verdana",
-		fontSize: 45,
+		fontSize: 25,
 		fill: "silver",
 		fontWeight: 700
 	};
@@ -363,33 +363,87 @@ spaceCowboy = function() {
 };
 
 //Animates spaceCowboyText
-function spaceCowboyAnimation(sCowboyChildren) {
+function spaceCowboyAnimation(sCowboyChildren, startAlpha) {
 	//temp printout of a PIXI.Text
 	console.log(sCowboyChildren[0]);
 
-	let lineDelay = 400; //used to delay alpha tween between each line
-	let targetAlpha = 0.8;
+	//there is some weird issue, alphaTweenZero2 is running automatically without a .start() on it but alphaTweenZero won't.
+	//this is making it so alphaTweenZero isn't finishing first before kicking off alphaTweenZero2
+
+	let midAlpha = { alpha: 0.8 };
+	let endAlpha = { alpha: 0 };
+	// let alphaCurve = { alpha: [startAlpha, midAlpha, endAlpha] };
+	let alphaTime = 1500; //used to control total time of alpha tweens
+	let posY = -80;
+	let baseDelay = 470;
+
+	// //Tweens for "See"
+	let alphaTweenZero2 = new TWEEN.Tween(sCowboyChildren[0])
+		.to({ alpha: 0 })
+		.to(endAlpha, 1100)
+		.easing(TWEEN.Easing.Quartic.Out);
 	//create our tweens to interact with our array of PIXI.Text
-	let tweenTest = new TWEEN.Tween(sCowboyChildren[0])
+	let alphaTweenZero = new TWEEN.Tween(sCowboyChildren[0])
 		.to({ alpha: 0 }, 2000)
-		.to({ alpha: targetAlpha }, 2000)
+		.to(midAlpha, 2000)
+		.easing(TWEEN.Easing.Quartic.Out)
+		.chain(alphaTweenZero2)
 		.start();
-	let tweenTest2 = new TWEEN.Tween(sCowboyChildren[1])
-		.to({ alpha: 0 }, 2000)
-		.to({ alpha: targetAlpha }, 2000)
-		.delay(450)
-		.start();
-
-	let tweenTest3 = new TWEEN.Tween(sCowboyChildren[2])
-		.to({ alpha: 0 }, 2000)
-		.to({ alpha: targetAlpha }, 2000)
-		.delay(900)
+	let translateYZero = new TWEEN.Tween(sCowboyChildren[0])
+		.to({ angle: 25, x: 40, y: posY }, 1300)
+		.easing(TWEEN.Easing.Sinusoidal.In)
+		.delay(1400)
 		.start();
 
-	let tweenTest4 = new TWEEN.Tween(sCowboyChildren[3])
+	//Tweens for "You"
+	let alphaTweenOne2 = new TWEEN.Tween(sCowboyChildren[1])
+		.to(endAlpha, 1100)
+		.easing(TWEEN.Easing.Quartic.Out);
+	let alphaTweenOne = new TWEEN.Tween(sCowboyChildren[1])
 		.to({ alpha: 0 }, 2000)
-		.to({ alpha: targetAlpha }, 2000)
-		.delay(1350)
+		.to(midAlpha, 2000)
+		.easing(TWEEN.Easing.Quartic.Out)
+		.chain(alphaTweenOne2)
+		.delay(baseDelay)
+		.start();
+	let translateYOne = new TWEEN.Tween(sCowboyChildren[1])
+		.to({ angle: 25, x: 40, y: posY }, 1300)
+		.easing(TWEEN.Easing.Sinusoidal.In)
+		.delay(1400 + baseDelay)
+		.start();
+
+	//Tweens for "Space"
+	let alphaTweenTwo2 = new TWEEN.Tween(sCowboyChildren[2])
+		.to(endAlpha, 1100)
+		.easing(TWEEN.Easing.Quartic.Out);
+	let alphaTweenTwo = new TWEEN.Tween(sCowboyChildren[2])
+		.to({ alpha: 0 }, 2000)
+		.to(midAlpha, 2000)
+		.easing(TWEEN.Easing.Quartic.Out)
+		.chain(alphaTweenTwo2)
+		.delay(baseDelay * 1.8)
+		.start();
+	let translateYTwo = new TWEEN.Tween(sCowboyChildren[2])
+		.to({ angle: 25, x: 40, y: posY }, 1300)
+		.easing(TWEEN.Easing.Sinusoidal.In)
+		.delay(1400 + baseDelay * 1.8)
+		.start();
+
+	//Tweens for "Cowboy"
+	let alphaTweenThree2 = new TWEEN.Tween(sCowboyChildren[3])
+		.to(endAlpha, 1100)
+		.easing(TWEEN.Easing.Quartic.Out);
+	let alphaTweenThree = new TWEEN.Tween(sCowboyChildren[3])
+		.to({ alpha: 0 }, 2000)
+		.to(midAlpha, 2000)
+		.easing(TWEEN.Easing.Quartic.Out)
+		.chain(alphaTweenThree2)
+		.delay(baseDelay * 2.6)
+		.start();
+	let translateYThree = new TWEEN.Tween(sCowboyChildren[3])
+		.to({ angle: 25, x: 40, y: posY }, 1300)
+		.easing(TWEEN.Easing.Sinusoidal.In)
+		.delay(1400 + baseDelay * 2.6)
 		.start();
 
 	//EVENTUALLY I WILL WANT THIS TO BE IN A LOOP FOR DRY CODE PLEASE
