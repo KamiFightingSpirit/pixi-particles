@@ -1,7 +1,8 @@
 // / <reference path="node_modules/pixi-particles/ambient.d.ts" />
 // / <reference path="node_modules/pixi.js/pixi.js.d.ts" />
 
-var imagePaths = ["../../docs/examples/images/particle.png"];
+var imagePaths = ["docs/examples/images/particle.png"];
+
 PIXI.utils.skipHello(); // remove pixi message in console
 
 let enterScreenState = {
@@ -90,7 +91,6 @@ var updateId, delta;
 let speedController = 0.001; //controls the speed of emitter, the greater the number the faster it is
 let radiusTicker = 0; //used to expand radius post enterText click
 // var particle, next; //dicking around
-let targetAlpha = 1;
 
 // Update function every frame
 var update = function(time) {
@@ -248,10 +248,6 @@ let enterTextClickEffects = function() {
 	enterText.parent.destroy();
 	enterText.destroy();
 	spaceCowboy();
-	//placeholder for spaceCowboy
-	this.text === "Clicked"
-		? (this.text = "- Enter -")
-		: (this.text = "See You Space Cowboy");
 
 	//-------------------MOUSECLICK: EDIT THE EMITTER------------------
 	emitter.minimumSpeedMultiplier = 3;
@@ -407,7 +403,7 @@ function spaceCowboyAnimation(sCowboyChildren, startAlpha) {
 		.delay(baseDelay)
 		.start();
 	let translateYOne = new TWEEN.Tween(sCowboyChildren[1])
-		.to({ angle: 25, x: 40, y: posY }, 1300)
+		.to({ angle: 25, x: 40, y: posY + 10 }, 1300)
 		.easing(TWEEN.Easing.Sinusoidal.In)
 		.delay(1400 + baseDelay)
 		.start();
@@ -424,7 +420,7 @@ function spaceCowboyAnimation(sCowboyChildren, startAlpha) {
 		.delay(baseDelay * 1.8)
 		.start();
 	let translateYTwo = new TWEEN.Tween(sCowboyChildren[2])
-		.to({ angle: 25, x: 40, y: posY }, 1300)
+		.to({ angle: 25, x: 40, y: posY + 15 }, 1300)
 		.easing(TWEEN.Easing.Sinusoidal.In)
 		.delay(1400 + baseDelay * 1.8)
 		.start();
@@ -441,7 +437,7 @@ function spaceCowboyAnimation(sCowboyChildren, startAlpha) {
 		.delay(baseDelay * 2.6)
 		.start();
 	let translateYThree = new TWEEN.Tween(sCowboyChildren[3])
-		.to({ angle: 25, x: 40, y: posY }, 1300)
+		.to({ angle: 25, x: 40, y: posY + 20 }, 1300)
 		.easing(TWEEN.Easing.Sinusoidal.In)
 		.delay(1400 + baseDelay * 2.6)
 		.start();
@@ -455,4 +451,17 @@ function spaceCowboyAnimation(sCowboyChildren, startAlpha) {
 	// 		.to({ alpha: 1 }, 2000)
 	// 		.start();
 	// });
+
+	//DEMO FOR BLUR FILTER
+	// // Draw a green rectangle
+	// const rect = new PIXI.Graphics()
+	// 	.beginTextureFill(0x00ff00)
+	// 	.drawRect(40, 40, 200, 200);
+	// // Add a blur filter
+	// rect.filters = [new PIXI.filters.BlurFilter()];
+	// // Display rectangle
+	// stage.addChild(rect);
+	// // rect.x = renderer.width / 2;
+	// // rect.y = renderer.height / 2;
+	// rect.set;
 }
