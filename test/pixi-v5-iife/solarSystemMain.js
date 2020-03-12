@@ -42,6 +42,7 @@ var stage = new PIXI.Container(),
 
 //Create container to hold all planets and add to root container
 var planetContainer = new PIXI.Container();
+planetContainer.scale.y = 0.5;
 stage.addChild(planetContainer);
 
 //Create textures
@@ -61,16 +62,15 @@ sunGraphic.drawCircle(0, 0, 50);
 //because we are using fill we call endFill.
 sunGraphic.endFill();
 
-let plutoTexture = new PIXI.Texture.from("./assets/sunShrunk.jpg");
-plutoTexture.frame = new PIXI.Rectangle(0, 0, 220, 250);
-
+let plutoTexture = new PIXI.Texture.from("./assets/plutoShrunk.jpg");
+plutoTexture.frame = new PIXI.Rectangle(100, 100, 220, 250);
 let plutoGraphic = new PIXI.Graphics();
 plutoGraphic.x = renderer.width / 4;
 plutoGraphic.y = renderer.height / 2;
-stage.addChild(plutoGraphic);
 plutoGraphic.beginTextureFill(plutoTexture);
 plutoGraphic.drawCircle(0, 0, 100);
 plutoGraphic.endFill();
+stage.addChild(plutoGraphic);
 
 //adds in a ticker manually (determines frame rate etc I think)
 const ticker = new PIXI.Ticker();
