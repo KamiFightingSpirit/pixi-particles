@@ -9,8 +9,8 @@ var rendererOptions = {
 	antialias: true
 };
 
+let _ = undefined;
 const app = new PIXI.Application(rendererOptions);
-// document.body.appendChild(app.view);
 
 const isoScalingContainer = new PIXI.Container();
 isoScalingContainer.scale.y = 0.5;
@@ -23,7 +23,7 @@ isometryPlane.rotation = Math.PI / 4;
 isoScalingContainer.addChild(isometryPlane);
 
 let numOfRowCols = 500;
-isometryPlane.lineStyle(2, 0xffffff); //creates the grid
+isometryPlane.lineStyle(1, 0xffffff); //creates the grid
 for (let i = -numOfRowCols; i <= numOfRowCols; i += 50) {
 	isometryPlane.moveTo(-numOfRowCols, i);
 	isometryPlane.lineTo(numOfRowCols, i);
@@ -70,15 +70,10 @@ function setup() {
 	let sunGraphic = new PIXI.Graphics();
 	sunGraphic.lineStyle(0);
 	sunGraphic.beginTextureFill(sunTexture); // can have sunGraphic.beginTextureFill(sunTexture, 0xff00ff, 1); to color the planet
-	sunGraphic.drawCircle(0, 0, 50);
+	sunGraphic.drawCircle(0, 0, 75);
 	sunGraphic.endFill();
-	let testTexture = app.renderer.generateTexture(sunGraphic);
 
-	let sunSprite = new PIXI.Sprite(testTexture);
-	// sunSprite.proj.affine = PIXI.projection.AFFINE.AXIS_X;
-	sunSprite.anchor.set(0.5, 1.0);
-	// sunSprite.scale.set(3, 5);
-	sunSprite.rotation = 2.3;
+	sunGraphic.setTransform(_, _, _, 1.5, -0.8, _); //setTransform(x, y, x-scale,y-scale,xkew,yskew )
 	isometryPlane.addChild(sunGraphic);
 
 	//Create textures
@@ -93,7 +88,6 @@ function setup() {
 	plutoGraphic.drawCircle(0, 0, 50);
 	plutoGraphic.endFill();
 
-	let _ = undefined;
 	//this is a way that we can change our graphics appearance after adjusting the scale of our entire stage.
 	plutoGraphic.setTransform(_, _, _, _, _, 0.5);
 	let plutoTestTexture = app.renderer.generateTexture(plutoGraphic);
