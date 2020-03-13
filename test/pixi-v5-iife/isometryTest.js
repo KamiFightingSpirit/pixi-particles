@@ -1,3 +1,28 @@
+/*
+Goals:
+1. Get the initial sun setup
+2. Add a corona to the sun -> to be used as atmostphere
+3. Add a planet
+4. Rotate the planet around the sun
+5. Add the planets atmosphere (may differ from the corona setup)
+6. Add shading to the planet
+7. Make the planet stop when hover
+8. Make the planet restart when stopped hovering
+9. Test how adding an orbital line looks
+10. Add an info box upon hovering
+11. Create a create planet function 
+12. Add multiple planets
+13. Add in the navbar
+14. Add in the Relativity toolbar
+15. Create a function that creates info boxes for planets 
+16. Begin work on individual page view
+17. Load the images properly via loader
+18. Figure out how to do different frame scrolls without picture glitching
+19. Get everything to accurately reposition upon resize
+*/
+
+PIXI.utils.skipHello(); // remove pixi message in console
+
 var canvas = document.getElementById("stage");
 var rendererOptions = {
 	width: window.innerWidth,
@@ -22,37 +47,51 @@ const isometryPlane = new PIXI.Graphics();
 isometryPlane.rotation = Math.PI / 4;
 isoScalingContainer.addChild(isometryPlane);
 
-let numOfRowCols = 500;
+let numOfRowCols = 1000;
 isometryPlane.lineStyle(1, 0xffffff); //creates the grid
-for (let i = -numOfRowCols; i <= numOfRowCols; i += 50) {
-	isometryPlane.moveTo(-numOfRowCols, i);
-	isometryPlane.lineTo(numOfRowCols, i);
-	isometryPlane.moveTo(i, -numOfRowCols);
-	isometryPlane.lineTo(i, numOfRowCols);
-}
+// for (let i = -numOfRowCols; i <= numOfRowCols; i += 50) {
+// 	isometryPlane.moveTo(-numOfRowCols, i);
+// 	isometryPlane.lineTo(numOfRowCols, i);
+// 	isometryPlane.moveTo(i, -numOfRowCols);
+// 	isometryPlane.lineTo(i, numOfRowCols);
+// }
 let startRadius = 100;
-for (let i = 0; i <= numOfRowCols; i += 100) {
+for (let i = 200; i <= numOfRowCols; i += 100) {
 	isometryPlane.drawCircle(0, 0, i);
 }
 
 //create the loader
 PIXI.Loader.shared
 	.add("./assets/plutoShrunk.jpg")
+	.add("./assets/plutomap1k.jpg")
 	.add("./assets/sunShrunk.jpg")
+	.add("./assets/sun.jpg")
 	.add("./assets/eggHead.png")
 	.load(setup);
 function setup() {
-	let eggHeadTexture =
-		PIXI.Loader.shared.resources["./assets/eggHead.png"].texture;
+	let sunTexture =
+		PIXI.Loader.shared.resources["./assets/sunShrunk.jpg"].texture;
+	console.log(sunTexture.width, sunTexture.height);
+	sunTexture.frame = new PIXI.Rectangle(2, 0, 200, 100); //Texture.frame (x, y, width, height)
+	let sunGraphic = new PIXI.Graphics();
+	sunGraphic.lineStyle(0);
+	sunGraphic.beginTextureFill(sunTexture); // can have sunGraphic.beginTextureFill(sunTexture, 0xff00ff, 1); to color the planet
+	sunGraphic.drawCircle(0, 0, 100);
+	sunGraphic.endFill();
+	sunGraphic.setTransform(_, _, _, 1.6, -0.8, _); //setTransform(x, y, x-scale,y-scale,xkew,yskew )
+	isometryPlane.addChild(sunGraphic);
 
-	const sprite3 = new PIXI.Sprite(eggHeadTexture);
-	sprite3.anchor.set(0.5, 1.0);
-	// sprite3.proj.affine = PIXI.projection.AFFINE.AXIS_X;
-	sprite3.scale.set(0.3, 0.8); // make it small but tall!
-	sprite3.rotation = 5.5;
-	isometryPlane.addChild(sprite3);
+	let plutoTexture =
+		PIXI.Loader.shared.resources["./assets/plutomap1k.jpg"].texture;
+	plutoTexture.frame = new PIXI.Rectangle(0, 0, 200, 250); //Texture.frame (x, y, width, height)
+	let plutoGraphic = new PIXI.Graphics();
+	plutoGraphic.lineStyle(0);
+	plutoGraphic.beginTextureFill(plutoTexture); // can have sunGraphic.beginTextureFill(sunTexture, 0xff00ff, 1); to color the planet
+	plutoGraphic.drawCircle(0, 0, 50);
+	plutoGraphic.endFill();
+	plutoGraphic.setTransform(_, _, _, _, _, 0.5);
+	isometryPlane.addChild(plutoGraphic);
 
-	//TEMP -- TRYING OUT TWO SPRITES
 	const sprite4 = new PIXI.projection.Sprite2d(
 		PIXI.Loader.shared.resources["./assets/eggHead.png"].texture
 	);
@@ -61,68 +100,27 @@ function setup() {
 	sprite4.scale.set(0.3, 0.5); // make it small but tall!
 	isometryPlane.addChild(sprite4);
 
-	//Create textures
-	let sunTexture =
-		PIXI.Loader.shared.resources["./assets/sunShrunk.jpg"].texture;
-	//Set the position of image that you want to use as your initial view
-	sunTexture.frame = new PIXI.Rectangle(0, 0, 200, 250); //Texture.frame (x, y, width, height)
-	//Create a circle
-	let sunGraphic = new PIXI.Graphics();
-	sunGraphic.lineStyle(0);
-	sunGraphic.beginTextureFill(sunTexture); // can have sunGraphic.beginTextureFill(sunTexture, 0xff00ff, 1); to color the planet
-	sunGraphic.drawCircle(0, 0, 75);
-	sunGraphic.endFill();
-
-	sunGraphic.setTransform(_, _, _, 1.5, -0.8, _); //setTransform(x, y, x-scale,y-scale,xkew,yskew )
-	isometryPlane.addChild(sunGraphic);
-
-	//Create textures
-	let plutoTexture =
-		PIXI.Loader.shared.resources["./assets/plutoShrunk.jpg"].texture;
-	//Set the position of image that you want to use as your initial view
-	plutoTexture.frame = new PIXI.Rectangle(0, 0, 200, 250); //Texture.frame (x, y, width, height)
-	let plutoGraphic = new PIXI.Graphics();
-	plutoGraphic.lineStyle(0);
-	plutoGraphic.beginTextureFill(plutoTexture); // can have sunGraphic.beginTextureFill(sunTexture, 0xff00ff, 1); to color the planet
-	console.log(plutoTexture.width, sunTexture.width);
-	plutoGraphic.drawCircle(0, 0, 50);
-	plutoGraphic.endFill();
-
-	//this is a way that we can change our graphics appearance after adjusting the scale of our entire stage.
-	plutoGraphic.setTransform(_, _, _, _, _, 0.5);
-	let plutoTestTexture = app.renderer.generateTexture(plutoGraphic);
-
-	let plutoSprite = new PIXI.projection.Sprite2d(plutoTestTexture);
-	plutoSprite.proj.affine = PIXI.projection.AFFINE.AXIS_X;
-	plutoSprite.anchor.set(0.5, 1.0);
-	isometryPlane.addChild(plutoGraphic);
-
 	let textureTicker = 0;
 	let step = 0;
 	app.ticker.add(delta => {
 		textureTicker += 0.7;
 		sunTexture.frame.width = 200 + textureTicker * 2;
 		plutoTexture.frame.width = 200 + textureTicker;
-		plutoTexture.updateUvs();
+
 		sunTexture.updateUvs();
-		plutoGraphic.geometry.invalidate();
+		plutoTexture.updateUvs();
+
 		sunGraphic.geometry.invalidate();
+		plutoGraphic.geometry.invalidate();
 
 		// sprite3.rotation = step * 0.05;
 		step += delta;
 
 		const radiusPluto = 200;
-		const speedPluto = 0.005;
+		const speedPluto = 0.05;
 		plutoGraphic.position.set(
-			Math.cos(step * speedPluto * 2) * radiusPluto,
-			Math.sin(step * speedPluto * 2) * radiusPluto
-		);
-
-		const radius3 = 200;
-		const speed3 = 0.005;
-		sprite3.position.set(
-			Math.cos(step * speed3 * 2) * radius3,
-			Math.sin(step * speed3 * 2) * radius3
+			Math.cos(step * speedPluto * 1) * radiusPluto,
+			Math.sin(step * speedPluto * 1) * radiusPluto
 		);
 
 		const radius4 = 300;
@@ -135,7 +133,8 @@ function setup() {
 }
 
 function position(step, speed, radius, sprite) {
-	sprite.position.set(
+	sprite = this;
+	this.position.set(
 		Math.cos(step * speed) * radius,
 		Math.sin(step * speed) * radius
 	);
