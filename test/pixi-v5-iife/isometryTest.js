@@ -1,10 +1,5 @@
 /*
 Goals:
-1. Get the initial sun setup DONE 03/13
-2. Add a corona to the sun -> to be used as atmostphere DONE 03/13
-3. Add a planet DONE 03/12
-4. Rotate the planet around the sun DONE 03/12
-5. Add the planets atmosphere (may differ from the corona setup) DONE 03/13
 6. Add shading to the planet -- let's hope this isn't necessary....
 7. Make the planet stop when hover 
 8. Make the planet restart when stopped hovering
@@ -19,10 +14,21 @@ Goals:
 17. Load the images properly via loader
 18. Figure out how to do different frame scrolls without picture glitching
 19. Get everything to accurately reposition upon resize
+
+COMPLETED:
+1. Get the initial sun setup DONE 03/13
+2. Add a corona to the sun -> to be used as atmostphere DONE 03/13
+3. Add a planet DONE 03/12
+4. Rotate the planet around the sun DONE 03/12
+5. Add the planets atmosphere (may differ from the corona setup) DONE 03/13
+
 */
 
 PIXI.utils.skipHello(); // remove pixi message in console
 
+let mainScreenState = {
+	plutoHover: false
+};
 var canvas = document.getElementById("stage");
 var rendererOptions = {
 	width: window.innerWidth,
@@ -75,38 +81,41 @@ function setup() {
 		PIXI.Loader.shared.resources["./assets/sunShrunk.jpg"].texture;
 	sunTexture.frame = new PIXI.Rectangle(2, 0, 200, 100); //Texture.frame (x, y, width, height)
 	let sunGraphic = new PIXI.Graphics()
-		.lineStyle(8, 0xcc9f4c, 0.25, 0.5) //add a semi-transparent corona lineStyle(width, color, alpha,alignment,native),
+		.lineStyle(12, 0xcc9f4c, 0.15, 0.5) //add a semi-transparent corona lineStyle(width, color, alpha,alignment,native),
 		.beginTextureFill(sunTexture)
-		.drawCircle(0, 0, 100)
+		.drawCircle(0, 0, 125)
 		.endFill()
-		.setTransform(_, _, _, 2, _, _); //setTransform(x, y, x-scale,y-scale,xkew,yskew )
+		.setTransform(_, _, _, 2.1, _, _); //setTransform(x, y, x-scale,y-scale,xkew,yskew )
+	sunGraphic.interactive = true;
 	isometryPlane.addChild(sunGraphic);
 	//add a background sun to create a double layered corona for the sun
 	let backgroundSun = new PIXI.Graphics();
 	backgroundSun
 		.lineStyle(20, 0xcc9f4c, 0.5, 0.5)
-		.drawCircle(0, 0, 102)
-		.setTransform(_, _, _, 2, _, _).filters = [new PIXI.filters.BlurFilter(6)];
+		.drawCircle(0, 0, 127)
+		.setTransform(_, _, _, 2.1, _, _).filters = [
+		new PIXI.filters.BlurFilter(4)
+	];
 	isometryPlane.addChild(backgroundSun);
 
 	let plutoTexture =
 		PIXI.Loader.shared.resources["./assets/plutomap1k.jpg"].texture;
 	plutoTexture.frame = new PIXI.Rectangle(0, 0, 200, 250); //Texture.frame (x, y, width, height)
 	let plutoGraphic = new PIXI.Graphics()
-		.lineStyle(8, 0xc3b6aa, 0.25, 0.5) //add atmostphere
+		.lineStyle(7, 0xc3b6aa, 0.25, 0.5) //add atmostphere
 		.beginTextureFill(plutoTexture)
 		.setTransform(_, _, _, 2, _, _) //setTransform(x, y, x-scale,y-scale,xkew,yskew )
 		.drawCircle(0, 0, 50)
 		.endFill();
+	plutoGraphic.interactive = true;
 	isometryPlane.addChild(plutoGraphic);
 
 	let textureTicker = 0;
 	let step = 0;
 	app.ticker.add(delta => {
 		textureTicker += 0.7;
-		step += delta;
 
-		//control scrolling of planet background
+		//control scrolling of a planets texture/background
 		sunTexture.frame.width = 200 + textureTicker / 3;
 		plutoTexture.frame.width = 200 + textureTicker;
 		sunTexture.updateUvs();
@@ -117,13 +126,27 @@ function setup() {
 		//control movement of a planet
 		const radiusPluto = 450;
 		const speedPluto = 0.02;
-		plutoGraphic.position.set(
-			Math.cos(step * speedPluto * 1) * radiusPluto,
-			Math.sin(step * speedPluto * 1) * radiusPluto
-		);
+
+		if (!mainScreenState.plutoHover) {
+			step += delta;
+			plutoGraphic.position.set(
+				Math.cos(step * speedPluto * 1) * radiusPluto,
+				Math.sin(step * speedPluto * 1) * radiusPluto
+			);
+		}
 	});
+
+	//Add event listeners
+	plutoGraphic.on("mouseover", plutoHoverEffects);
+	plutoGraphic.on("mouseout", plutoHoverEffects);
 }
 
+function plutoHoverEffects() {
+	mainScreenState.plutoHover = !mainScreenState.plutoHover;
+	console.log(this);
+}
+
+//PLACEHOLDER ONLY for controlling orbits of planets
 function position(step, speed, radius, sprite) {
 	sprite = this;
 	this.position.set(
