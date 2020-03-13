@@ -114,10 +114,27 @@ function setup() {
 	//create an infographic for on hover
 	window.plutoInfo = new PIXI.Graphics()
 		.lineStyle(2, 0xc3b6aa)
+		.beginFill(0x0c0d0c)
 		.setTransform(_, _, _, 2, _, _)
-		.drawRoundedRect(0, 0, 400, 375, 50);
+		.drawRoundedRect(0, 0, 400, 300, 50);
 	plutoInfo.visible = false;
 	isometryPlane.addChild(plutoInfo);
+
+	let planetTextOptions = {
+		fontFamily: "Arial",
+		fontSize: 35,
+		fill: "silver",
+		wordWrap: true,
+		wordWrapWidth: plutoInfo.width - 40,
+		leading: 4
+	};
+
+	let plutoText = new PIXI.Text(
+		"This is just a test, this is not real, if it was real, it wouldn't be a test",
+		planetTextOptions
+	);
+	plutoText.position.set(30, 30);
+	plutoInfo.addChild(plutoText);
 
 	let textureTicker = 0;
 	let step = 0;
