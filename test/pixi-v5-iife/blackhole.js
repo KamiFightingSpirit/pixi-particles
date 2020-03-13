@@ -331,6 +331,7 @@ spaceCowboy = function() {
 	spaceCowboyTwo = new PIXI.Text("You", spaceCowboyStyle);
 	spaceCowboyThree = new PIXI.Text("Space", spaceCowboyStyle);
 	spaceCowboyFour = new PIXI.Text("Cowboy", spaceCowboyStyle);
+
 	//add them to their parent container
 	sCowboyContainer.addChild(
 		spaceCowboyOne,
@@ -339,6 +340,9 @@ spaceCowboy = function() {
 		spaceCowboyFour
 	);
 
+	//CREATE A FILTER FOR spaceCowboy
+	//new PIXI.filters.BlurFilter (strength, quality, resolution, kernelSize)
+	let sCowboyFilter = new PIXI.filters.BlurFilter();
 	//Position the text within the container
 	let posY = 0; //Used to seperate each text line
 	let startAlpha = 0.01; //used as our starting point for alpha
@@ -347,6 +351,7 @@ spaceCowboy = function() {
 		sCowboyText.position.set(0, posY);
 		posY += 50;
 		sCowboyText.alpha = startAlpha;
+		sCowboyText.filters = [new PIXI.filters.BlurFilter()];
 	});
 	//center the container on the stage
 	sCowboyContainer.position = {
@@ -355,14 +360,14 @@ spaceCowboy = function() {
 	};
 
 	//now that we have our text container all setup, let's call the function for spaceCowboyAnimation
-	spaceCowboyAnimation(sCowboyChildren);
+	spaceCowboyAnimation(sCowboyChildren, sCowboyFilter);
 };
 
 //Animates spaceCowboyText
-function spaceCowboyAnimation(sCowboyChildren, startAlpha) {
+function spaceCowboyAnimation(sCowboyChildren, sCowboyFilter) {
 	//temp printout of a PIXI.Text
 	console.log(sCowboyChildren[0]);
-
+	// sCowboyFilter.blur = 0;
 	//there is some weird issue, alphaTweenZero2 is running automatically without a .start() on it but alphaTweenZero won't.
 	//this is making it so alphaTweenZero isn't finishing first before kicking off alphaTweenZero2
 
@@ -373,6 +378,10 @@ function spaceCowboyAnimation(sCowboyChildren, startAlpha) {
 	let posY = -80;
 	let baseDelay = 470;
 
+	//printing out filter of a child to write a tween for it
+
+	console.log(sCowboyContainer.children[0].filters[0]);
+	// sCowboyContainer.children[0].filters[0].blur = 0;
 	// //Tweens for "See"
 	let alphaTweenZero2 = new TWEEN.Tween(sCowboyChildren[0])
 		.to({ alpha: 0 })
@@ -389,6 +398,16 @@ function spaceCowboyAnimation(sCowboyChildren, startAlpha) {
 		.to({ angle: 25, x: 40, y: posY }, 1300)
 		.easing(TWEEN.Easing.Sinusoidal.In)
 		.delay(1400)
+		.start();
+	let blurFilterZero2 = new TWEEN.Tween(sCowboyChildren[0].filters[0])
+		.to({ blur: 0 })
+		.to({ blur: 8 }, 1100)
+		.easing(TWEEN.Easing.Back.Out);
+	let blurFilterZero = new TWEEN.Tween(sCowboyChildren[0].filters[0])
+		.to({ blur: 8 }, 1700)
+		.to({ blur: 0 }, 2000)
+		.easing(TWEEN.Easing.Cubic.InOut)
+		.chain(blurFilterZero2)
 		.start();
 
 	//Tweens for "You"
@@ -407,6 +426,17 @@ function spaceCowboyAnimation(sCowboyChildren, startAlpha) {
 		.easing(TWEEN.Easing.Sinusoidal.In)
 		.delay(1400 + baseDelay)
 		.start();
+	let blurFilterOne2 = new TWEEN.Tween(sCowboyChildren[1].filters[0])
+		.to({ blur: 0 })
+		.to({ blur: 8 }, 1100)
+		.easing(TWEEN.Easing.Back.Out);
+	let blurFilterOne = new TWEEN.Tween(sCowboyChildren[1].filters[0])
+		.to({ blur: 8 }, 1700)
+		.to({ blur: 0 }, 2000)
+		.easing(TWEEN.Easing.Cubic.InOut)
+		.chain(blurFilterOne2)
+		.delay(baseDelay)
+		.start();
 
 	//Tweens for "Space"
 	let alphaTweenTwo2 = new TWEEN.Tween(sCowboyChildren[2])
@@ -423,6 +453,17 @@ function spaceCowboyAnimation(sCowboyChildren, startAlpha) {
 		.to({ angle: 25, x: 40, y: posY + 15 }, 1300)
 		.easing(TWEEN.Easing.Sinusoidal.In)
 		.delay(1400 + baseDelay * 1.8)
+		.start();
+	let blurFilterTwo2 = new TWEEN.Tween(sCowboyChildren[2].filters[0])
+		.to({ blur: 0 })
+		.to({ blur: 8 }, 1100)
+		.easing(TWEEN.Easing.Back.Out);
+	let blurFilterTwo = new TWEEN.Tween(sCowboyChildren[2].filters[0])
+		.to({ blur: 8 }, 1700)
+		.to({ blur: 0 }, 2000)
+		.easing(TWEEN.Easing.Cubic.InOut)
+		.chain(blurFilterTwo2)
+		.delay(baseDelay * 1.8)
 		.start();
 
 	//Tweens for "Cowboy"
@@ -441,6 +482,17 @@ function spaceCowboyAnimation(sCowboyChildren, startAlpha) {
 		.easing(TWEEN.Easing.Sinusoidal.In)
 		.delay(1400 + baseDelay * 2.6)
 		.start();
+	let blurFilterThree2 = new TWEEN.Tween(sCowboyChildren[3].filters[0])
+		.to({ blur: 0 })
+		.to({ blur: 8 }, 1100)
+		.easing(TWEEN.Easing.Back.Out);
+	let blurFilterThree = new TWEEN.Tween(sCowboyChildren[3].filters[0])
+		.to({ blur: 8 }, 1700)
+		.to({ blur: 0 }, 2000)
+		.easing(TWEEN.Easing.Cubic.InOut)
+		.chain(blurFilterThree2)
+		.delay(baseDelay * 2.6)
+		.start();
 
 	//EVENTUALLY I WILL WANT THIS TO BE IN A LOOP FOR DRY CODE PLEASE
 	// let tweenTest = new TWEEN();
@@ -451,17 +503,4 @@ function spaceCowboyAnimation(sCowboyChildren, startAlpha) {
 	// 		.to({ alpha: 1 }, 2000)
 	// 		.start();
 	// });
-
-	//DEMO FOR BLUR FILTER
-	// // Draw a green rectangle
-	// const rect = new PIXI.Graphics()
-	// 	.beginTextureFill(0x00ff00)
-	// 	.drawRect(40, 40, 200, 200);
-	// // Add a blur filter
-	// rect.filters = [new PIXI.filters.BlurFilter()];
-	// // Display rectangle
-	// stage.addChild(rect);
-	// // rect.x = renderer.width / 2;
-	// // rect.y = renderer.height / 2;
-	// rect.set;
 }
