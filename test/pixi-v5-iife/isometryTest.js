@@ -3,7 +3,7 @@ Goals:
 6. Add shading to the planet -- let's hope this isn't necessary....
 7. Make the planet stop when hover 
 8. Make the planet restart when stopped hovering
-9. Test how adding an orbital line looks, need to adjust this
+9. Test how adding an orbital line looks --- need to adjust this
 10. Add an info box upon hovering
 11. Create a create planet function 
 12. Add multiple planets
@@ -12,7 +12,7 @@ Goals:
 15. Create a function that creates info boxes for planets 
 16. Begin work on individual page view
 17. Load the images properly via loader
-18. Figure out how to do different frame scrolls without picture glitching
+18. Figure out how to do different frame scrolls without picture glitching -- let's hope this isn't necessary....
 19. Get everything to accurately reposition upon resize
 
 COMPLETED:
@@ -29,6 +29,7 @@ PIXI.utils.skipHello(); // remove pixi message in console
 let mainScreenState = {
 	plutoHover: false
 };
+
 var canvas = document.getElementById("stage");
 var rendererOptions = {
 	width: window.innerWidth,
@@ -64,7 +65,7 @@ isometryPlane.lineStyle(1.2, 0xffffff); //creates the grid
 let startRadius = 100;
 for (let i = 325; i <= numOfRowCols; i += 125) {
 	isometryPlane.drawCircle(0, 0, i);
-	// isometryPlane.drawRoundedRect(0, 0, i, i + 50, 100); //can maybe use this as framing for my window popup on planet hoves
+	// isometryPlane.drawRoundedRect(200, 200, i, i + 50, 100); //can maybe use this as framing for my window popup on planet hoves
 	// isometryPlane.drawEllipse(0, 0, i, i + 30); //by extending y you can vary the height of a circle with this.
 }
 
@@ -110,6 +111,14 @@ function setup() {
 	plutoGraphic.interactive = true;
 	isometryPlane.addChild(plutoGraphic);
 
+	//create an infographic for on hover
+	window.plutoInfo = new PIXI.Graphics()
+		.lineStyle(2, 0xc3b6aa)
+		.setTransform(_, _, _, 2, _, _)
+		.drawRoundedRect(0, 0, 400, 375, 50);
+	plutoInfo.visible = false;
+	isometryPlane.addChild(plutoInfo);
+
 	let textureTicker = 0;
 	let step = 0;
 	app.ticker.add(delta => {
@@ -125,11 +134,16 @@ function setup() {
 
 		//control movement of a planet
 		const radiusPluto = 450;
-		const speedPluto = 0.02;
+		const speedPluto = 0.015;
 
 		if (!mainScreenState.plutoHover) {
 			step += delta;
 			plutoGraphic.position.set(
+				Math.cos(step * speedPluto * 1) * radiusPluto,
+				Math.sin(step * speedPluto * 1) * radiusPluto
+			);
+
+			plutoInfo.position.set(
 				Math.cos(step * speedPluto * 1) * radiusPluto,
 				Math.sin(step * speedPluto * 1) * radiusPluto
 			);
@@ -143,7 +157,7 @@ function setup() {
 
 function plutoHoverEffects() {
 	mainScreenState.plutoHover = !mainScreenState.plutoHover;
-	console.log(this);
+	plutoInfo.visible = !plutoInfo.visible;
 }
 
 //PLACEHOLDER ONLY for controlling orbits of planets
