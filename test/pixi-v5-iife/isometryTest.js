@@ -51,7 +51,6 @@ isoScalingContainer.position.set(app.screen.width / 2, app.screen.height / 2);
 app.stage.addChild(isoScalingContainer);
 
 const isometryPlane = new PIXI.Graphics();
-// isometryPlane.rotation = Math.PI / 4;
 isoScalingContainer.addChild(isometryPlane);
 
 let numOfRowCols = 1300;
@@ -63,7 +62,7 @@ isometryPlane.lineStyle(1.2, 0xffffff); //creates the grid
 // 	isometryPlane.lineTo(i, numOfRowCols);
 // }
 let startRadius = 100;
-for (let i = 325; i <= numOfRowCols; i += 125) {
+for (let i = 300; i <= numOfRowCols; i += 150) {
 	isometryPlane.drawCircle(0, 0, i);
 	// isometryPlane.drawRoundedRect(200, 200, i, i + 50, 100); //can maybe use this as framing for my window popup on planet hoves
 	// isometryPlane.drawEllipse(0, 0, i, i + 30); //by extending y you can vary the height of a circle with this.
@@ -75,9 +74,9 @@ PIXI.Loader.shared
 	.add("./assets/plutomap1k.jpg")
 	.add("./assets/sunShrunk.jpg")
 	.add("./assets/sun.jpg")
+	.add("./assets/mars.jpg")
 	.load(setup);
 function setup() {
-	//sun color: #cc9f4c
 	let sunTexture =
 		PIXI.Loader.shared.resources["./assets/sunShrunk.jpg"].texture;
 	sunTexture.frame = new PIXI.Rectangle(2, 0, 200, 100); //Texture.frame (x, y, width, height)
@@ -106,7 +105,7 @@ function setup() {
 		.lineStyle(7, 0xc3b6aa, 0.25, 0.5) //add atmostphere
 		.beginTextureFill(plutoTexture)
 		.setTransform(_, _, _, 2, _, _) //setTransform(x, y, x-scale,y-scale,xkew,yskew )
-		.drawCircle(0, 0, 50)
+		.drawCircle(0, 0, 60)
 		.endFill();
 	plutoGraphic.interactive = true;
 	isometryPlane.addChild(plutoGraphic);
@@ -116,25 +115,54 @@ function setup() {
 		.lineStyle(2, 0xc3b6aa)
 		.beginFill(0x0c0d0c)
 		.setTransform(_, _, _, 2, _, _)
-		.drawRoundedRect(0, 0, 400, 300, 50);
+		.drawRoundedRect(0, 0, 400, 200, 50);
 	plutoInfo.visible = false;
 	isometryPlane.addChild(plutoInfo);
 
+	//
+	//Cinzel|Noto+Serif|Titilliu
 	let planetTextOptions = {
-		fontFamily: "Arial",
+		fontFamily: "Noto+Serif",
 		fontSize: 35,
-		fill: "silver",
+		fill: "white",
+		fontWeight: "800",
 		wordWrap: true,
 		wordWrapWidth: plutoInfo.width - 40,
-		leading: 4
+		leading: 4,
+		resolution: 3
+		// stroke: "white",
+		// strokeThickness: 1
 	};
 
 	let plutoText = new PIXI.Text(
-		"This is just a test, this is not real, if it was real, it wouldn't be a test",
+		"Name: BlackRock \nTitle: Analyst \nYears: 2015-2017",
 		planetTextOptions
 	);
 	plutoText.position.set(30, 30);
 	plutoInfo.addChild(plutoText);
+
+	window.mars = new PIXI.Graphics();
+	let marsSettings = {
+		texture: PIXI.Loader.shared.resources["./assets/mars.jpg"].texture,
+		frame: new PIXI.Rectangle(0, 0, 700, 350),
+		lineStyleOptions: {
+			width: 7,
+			color: 0xc3b6aa,
+			alpha: 0.25,
+			alignment: 0.5
+		},
+		setTransformOptions: {
+			x: _,
+			y: _,
+			scaleX: _,
+			scaleY: 2,
+			skewX: _,
+			skewY: _
+		},
+		drawCircleOptions: { x: 0, y: 0, radius: 500 },
+		interactiveSetting: true
+	};
+	planetConstructor(mars, marsSettings);
 
 	let textureTicker = 0;
 	let step = 0;
@@ -170,6 +198,23 @@ function setup() {
 	//Add event listeners
 	plutoGraphic.on("mouseover", plutoHoverEffects);
 	plutoGraphic.on("mouseout", plutoHoverEffects);
+}
+
+function planetConstructor(planet, planetSettings) {
+	planet
+		.lineStyle(planetSettings.lineStyleOptions)
+		.beginTextureFill(planetSettings.texture)
+		.setTransform(
+			planetSettings.setTransformOptions.x,
+			planetSettings.setTransformOptions.y,
+			planetSettings.setTransformOptions.scaleX,
+			planetSettings.setTransformOptions.scaleY,
+			planetSettings.setTransformOptions.skewX,
+			planetSettings.setTransformOptions.skewY
+		)
+		.drawCircle(planetSettings.drawCircleOptions);
+	planet.interactive = planetSettings.interactiveSetting;
+	isometryPlane.addChild(planet);
 }
 
 function plutoHoverEffects() {
