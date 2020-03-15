@@ -14,6 +14,7 @@ Goals:
 17. Load the images properly via loader
 18. Figure out how to do different frame scrolls without picture glitching -- let's hope this isn't necessary....
 19. Get everything to accurately reposition upon resize
+20. Set z-index of info boxes to always be highest
 
 COMPLETED:
 1. Get the initial sun setup DONE 03/13
@@ -44,25 +45,19 @@ var rendererOptions = {
 let _ = undefined;
 const app = new PIXI.Application(rendererOptions);
 
-const isoScalingContainer = new PIXI.Container();
-isoScalingContainer.scale.y = 0.18;
-isoScalingContainer.scale.x = 0.5;
-isoScalingContainer.position.set(app.screen.width / 2, app.screen.height / 2);
-app.stage.addChild(isoScalingContainer);
+const planetContainer = new PIXI.Container();
+planetContainer.scale.y = 0.18;
+planetContainer.scale.x = 0.5;
+planetContainer.position.set(app.screen.width / 2, app.screen.height / 2);
+app.stage.addChild(planetContainer);
 
 const isometryPlane = new PIXI.Graphics();
-isoScalingContainer.addChild(isometryPlane);
+planetContainer.addChild(isometryPlane);
 
-let numOfRowCols = 1300;
-isometryPlane.lineStyle(1.2, 0xffffff); //creates the grid
-// for (let i = -numOfRowCols; i <= numOfRowCols; i += 50) {
-// 	isometryPlane.moveTo(-numOfRowCols, i);
-// 	isometryPlane.lineTo(numOfRowCols, i);
-// 	isometryPlane.moveTo(i, -numOfRowCols);
-// 	isometryPlane.lineTo(i, numOfRowCols);
-// }
-let startRadius = 100;
-for (let i = 300; i <= numOfRowCols; i += 150) {
+//Build Orbital Lines
+isometryPlane.lineStyle(1.2, 0xffffff);
+let maxRadius = 1300;
+for (let i = 300; i <= maxRadius; i += 150) {
 	isometryPlane.drawCircle(0, 0, i);
 	// isometryPlane.drawRoundedRect(200, 200, i, i + 50, 100); //can maybe use this as framing for my window popup on planet hoves
 	// isometryPlane.drawEllipse(0, 0, i, i + 30); //by extending y you can vary the height of a circle with this.
@@ -130,39 +125,44 @@ function setup() {
 		wordWrapWidth: plutoInfo.width - 40,
 		leading: 4,
 		resolution: 3
-		// stroke: "white",
-		// strokeThickness: 1
 	};
 
 	let plutoText = new PIXI.Text(
 		"Name: BlackRock \nTitle: Analyst \nYears: 2015-2017",
 		planetTextOptions
 	);
-	plutoText.position.set(30, 30);
+	plutoText.position.set(30, 30); //moves text within the box
 	plutoInfo.addChild(plutoText);
 
-	window.mars = new PIXI.Graphics();
+	let marsTexture = PIXI.Loader.shared.resources["./assets/mars.jpg"].texture;
+	marsTexture.frame = new PIXI.Rectangle(0, 0, 700, 300);
+	let marsGraphic = new PIXI.Graphics()
+		.lineStyle(8, 0xc07158, 0.25, 0.8) //add atmostphere
+		.beginTextureFill(marsTexture)
+		.setTransform(_, _, _, 2, _, _) //setTransform(x, y, x-scale,y-scale,xkew,yskew )
+		.drawCircle(0, 0, 60)
+		.endFill();
+	marsGraphic.interactive = true;
+	// isometryPlane.addChild(marsGraphic);
 	let marsSettings = {
-		texture: PIXI.Loader.shared.resources["./assets/mars.jpg"].texture,
-		frame: new PIXI.Rectangle(0, 0, 700, 350),
 		lineStyleOptions: {
-			width: 7,
-			color: 0xc3b6aa,
+			width: 200,
+			color: 0xc07158,
 			alpha: 0.25,
 			alignment: 0.5
-		},
-		setTransformOptions: {
-			x: _,
-			y: _,
-			scaleX: _,
-			scaleY: 2,
-			skewX: _,
-			skewY: _
-		},
-		drawCircleOptions: { x: 0, y: 0, radius: 500 },
-		interactiveSetting: true
+		}
+		// 	setTransformOptions: {
+		// 		x: _,
+		// 		y: _,
+		// 		scaleX: _,
+		// 		scaleY: 2,
+		// 		skewX: _,
+		// 		skewY: _
+		// 	},
+		// 	drawCircleOptions: { x: 0, y: 0, radius: 500 },
+		// 	interactiveSetting: true
 	};
-	planetConstructor(mars, marsSettings);
+	planetConstructor(marsGraphic, marsTexture, marsSettings);
 
 	let textureTicker = 0;
 	let step = 0;
@@ -172,15 +172,19 @@ function setup() {
 		//control scrolling of a planets texture/background
 		sunTexture.frame.width = 200 + textureTicker / 3;
 		plutoTexture.frame.width = 200 + textureTicker;
+		marsTexture.frame.width = 0 - textureTicker * 7;
 		sunTexture.updateUvs();
 		plutoTexture.updateUvs();
+		marsTexture.updateUvs();
 		sunGraphic.geometry.invalidate();
 		plutoGraphic.geometry.invalidate();
+		marsGraphic.geometry.invalidate();
 
 		//control movement of a planet
 		const radiusPluto = 450;
 		const speedPluto = 0.015;
-
+		const radiusMars = 750;
+		const speedMars = 0.02;
 		if (!mainScreenState.plutoHover) {
 			step += delta;
 			plutoGraphic.position.set(
@@ -193,6 +197,13 @@ function setup() {
 				Math.sin(step * speedPluto * 1) * radiusPluto
 			);
 		}
+
+		if (!mainScreenState.marsHover) {
+			marsGraphic.position.set(
+				Math.cos(step * speedMars * 1) * radiusMars,
+				Math.sin(step * speedMars * 1) * radiusMars
+			);
+		}
 	});
 
 	//Add event listeners
@@ -200,20 +211,19 @@ function setup() {
 	plutoGraphic.on("mouseout", plutoHoverEffects);
 }
 
-function planetConstructor(planet, planetSettings) {
-	planet
-		.lineStyle(planetSettings.lineStyleOptions)
-		.beginTextureFill(planetSettings.texture)
-		.setTransform(
-			planetSettings.setTransformOptions.x,
-			planetSettings.setTransformOptions.y,
-			planetSettings.setTransformOptions.scaleX,
-			planetSettings.setTransformOptions.scaleY,
-			planetSettings.setTransformOptions.skewX,
-			planetSettings.setTransformOptions.skewY
-		)
-		.drawCircle(planetSettings.drawCircleOptions);
-	planet.interactive = planetSettings.interactiveSetting;
+function planetConstructor(planet, planetTexture, planetSettings) {
+	planet.lineStyle(planetSettings.lineStyleOptions);
+	// .beginTextureFill(planetSettings.texture)
+	// .setTransform(
+	// 	planetSettings.setTransformOptions.x,
+	// 	planetSettings.setTransformOptions.y,
+	// 	planetSettings.setTransformOptions.scaleX,
+	// 	planetSettings.setTransformOptions.scaleY,
+	// 	planetSettings.setTransformOptions.skewX,
+	// 	planetSettings.setTransformOptions.skewY
+	// )
+	// .drawCircle(planetSettings.drawCircleOptions);
+	// planet.interactive = planetSettings.interactiveSetting;
 	isometryPlane.addChild(planet);
 }
 
