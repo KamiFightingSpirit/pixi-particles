@@ -1,10 +1,7 @@
 /*
 Goals:
 6. Add shading to the planet -- let's hope this isn't necessary....
-7. Make the planet stop when hover 
-8. Make the planet restart when stopped hovering
 9. Test how adding an orbital line looks --- need to adjust this
-10. Add an info box upon hovering
 11. Create a create planet function 
 12. Add multiple planets
 13. Add in the navbar
@@ -15,6 +12,9 @@ Goals:
 18. Figure out how to do different frame scrolls without picture glitching -- let's hope this isn't necessary....
 19. Get everything to accurately reposition upon resize
 20. Set z-index of info boxes to always be highest
+22. Solve the whole delta/step problem with
+23. Add a nicer info text load? Lower priority
+24. Fix Mars' texture frame glitching at start (maybe I can change the start position?)
 
 COMPLETED:
 1. Get the initial sun setup DONE 03/13
@@ -22,6 +22,10 @@ COMPLETED:
 3. Add a planet DONE 03/12
 4. Rotate the planet around the sun DONE 03/12
 5. Add the planets atmosphere (may differ from the corona setup) DONE 03/13
+7. Make the planet stop when hover DONE 03/16
+8. Make the planet restart when stopped hovering DONE 03/16
+10. Add an info box upon hovering DONE 03/15
+21. Add setting for planet's initial positioning (Can set via the STEP attribute) DONE 03/16
 
 */
 
@@ -46,7 +50,7 @@ let _ = undefined;
 const app = new PIXI.Application(rendererOptions);
 
 const planetContainer = new PIXI.Container();
-planetContainer.scale.y = 0.18;
+planetContainer.scale.y = 0.2;
 planetContainer.scale.x = 0.5;
 planetContainer.position.set(app.screen.width / 2, app.screen.height / 2);
 app.stage.addChild(planetContainer);
@@ -64,7 +68,8 @@ for (let i = 300; i <= maxRadius; i += 150) {
 }
 
 //create the loader
-PIXI.Loader.shared
+const loader = PIXI.Loader.shared;
+loader
 	.add("./assets/plutoShrunk.jpg")
 	.add("./assets/plutomap1k.jpg")
 	.add("./assets/sunShrunk.jpg")
@@ -86,7 +91,7 @@ function setup() {
 	//add a background sun to create a double layered corona for the sun
 	let backgroundSun = new PIXI.Graphics();
 	backgroundSun
-		.lineStyle(20, 0xcc9f4c, 0.5, 0.5)
+		.lineStyle(30, 0xcc9f4c, 0.5, 0.5)
 		.drawCircle(0, 0, 127)
 		.setTransform(_, _, _, 2.1, _, _).filters = [
 		new PIXI.filters.BlurFilter(4)
@@ -162,74 +167,93 @@ function setup() {
 		// 	drawCircleOptions: { x: 0, y: 0, radius: 500 },
 		// 	interactiveSetting: true
 	};
+
+	window.marsInfo = new PIXI.Graphics()
+		.lineStyle(2, 0xc3b6aa)
+		.beginFill(0x0c0d0c)
+		.setTransform(_, _, _, 2, _, _)
+		.drawRoundedRect(0, 0, 400, 200, 50);
+	marsInfo.visible = false;
+	isometryPlane.addChild(marsInfo);
 	planetConstructor(marsGraphic, marsTexture, marsSettings);
+	let marsText = new PIXI.Text(
+		"Name: Bridgewater \nTitle: Associate \nYears: 2017-2018",
+		planetTextOptions
+	);
+	marsText.position.set(30, 30); //moves text within the box
+	marsInfo.addChild(marsText);
 
 	let textureTicker = 0;
-	let step = 0;
+	let planetSpeed = 0.015;
+
+	let plutoOrbitControl = {
+		graphic: plutoGraphic,
+		texture: plutoTexture,
+		info: plutoInfo,
+		radius: 450,
+		speedFactor: 1,
+		textureTickerFactor: 1,
+		hovering: false,
+		step: 0 //can use this as a hacky way to set initial position
+	};
+	let marsOrbitControl = {
+		graphic: marsGraphic,
+		texture: marsTexture,
+		info: marsInfo,
+		radius: 750,
+		speedFactor: 1.15,
+		textureTickerFactor: -7,
+		hovering: false,
+		step: 120000
+	};
+
+	let planetOrbitControlArr = [plutoOrbitControl, marsOrbitControl];
+
 	app.ticker.add(delta => {
 		textureTicker += 0.7;
 
+		//Controls the positioning and texture scrolling of all planets
+		planetOrbitControlArr.map(planet => {
+			planet.texture.frame.width =
+				200 + textureTicker * planet.textureTickerFactor;
+			planet.texture.updateUvs();
+			planet.graphic.geometry.invalidate();
+			if (!planet.hovering) {
+				planet.step += delta;
+				planet.graphic.position.set(
+					Math.cos(planet.step * planetSpeed * planet.speedFactor) *
+						planet.radius,
+					Math.sin(planet.step * planetSpeed * planet.speedFactor) *
+						planet.radius
+				);
+				planet.info.position.set(
+					Math.cos(planet.step * planetSpeed * planet.speedFactor) *
+						planet.radius,
+					Math.sin(planet.step * planetSpeed * planet.speedFactor) *
+						planet.radius
+				);
+			}
+		});
+
 		//control scrolling of a planets texture/background
 		sunTexture.frame.width = 200 + textureTicker / 3;
-		plutoTexture.frame.width = 200 + textureTicker;
-		marsTexture.frame.width = 0 - textureTicker * 7;
 		sunTexture.updateUvs();
-		plutoTexture.updateUvs();
-		marsTexture.updateUvs();
 		sunGraphic.geometry.invalidate();
-		plutoGraphic.geometry.invalidate();
-		marsGraphic.geometry.invalidate();
-
-		//control movement of a planet
-		const radiusPluto = 450;
-		const speedPluto = 0.015;
-		const radiusMars = 750;
-		const speedMars = 0.02;
-		if (!mainScreenState.plutoHover) {
-			step += delta;
-			plutoGraphic.position.set(
-				Math.cos(step * speedPluto * 1) * radiusPluto,
-				Math.sin(step * speedPluto * 1) * radiusPluto
-			);
-
-			plutoInfo.position.set(
-				Math.cos(step * speedPluto * 1) * radiusPluto,
-				Math.sin(step * speedPluto * 1) * radiusPluto
-			);
-		}
-
-		if (!mainScreenState.marsHover) {
-			marsGraphic.position.set(
-				Math.cos(step * speedMars * 1) * radiusMars,
-				Math.sin(step * speedMars * 1) * radiusMars
-			);
-		}
 	});
 
 	//Add event listeners
 	plutoGraphic.on("mouseover", plutoHoverEffects);
 	plutoGraphic.on("mouseout", plutoHoverEffects);
-}
-
-function planetConstructor(planet, planetTexture, planetSettings) {
-	planet.lineStyle(planetSettings.lineStyleOptions);
-	// .beginTextureFill(planetSettings.texture)
-	// .setTransform(
-	// 	planetSettings.setTransformOptions.x,
-	// 	planetSettings.setTransformOptions.y,
-	// 	planetSettings.setTransformOptions.scaleX,
-	// 	planetSettings.setTransformOptions.scaleY,
-	// 	planetSettings.setTransformOptions.skewX,
-	// 	planetSettings.setTransformOptions.skewY
-	// )
-	// .drawCircle(planetSettings.drawCircleOptions);
-	// planet.interactive = planetSettings.interactiveSetting;
-	isometryPlane.addChild(planet);
-}
-
-function plutoHoverEffects() {
-	mainScreenState.plutoHover = !mainScreenState.plutoHover;
-	plutoInfo.visible = !plutoInfo.visible;
+	marsGraphic.on("mouseover", marsHoverEffects);
+	marsGraphic.on("mouseout", marsHoverEffects);
+	function plutoHoverEffects() {
+		plutoInfo.visible = !plutoInfo.visible;
+		plutoOrbitControl.hovering = !plutoOrbitControl.hovering;
+	}
+	function marsHoverEffects() {
+		marsInfo.visible = !marsInfo.visible;
+		marsOrbitControl.hovering = !marsOrbitControl.hovering;
+	}
 }
 
 //PLACEHOLDER ONLY for controlling orbits of planets
@@ -239,4 +263,20 @@ function position(step, speed, radius, sprite) {
 		Math.cos(step * speed) * radius,
 		Math.sin(step * speed) * radius
 	);
+}
+
+function planetConstructor(planet, planetTexture, planetSettings) {
+	planet.lineStyle(planetSettings.lineStyleOptions);
+	// .beginTextureFill(planetSettings.texture)
+	// .setTransform(
+	// 	planetSettings.setTransformOptions.x,
+	// 	planetSettings.setTransformOptions.y,
+	// 	planetSettings.setTransformOptions.scaleX,W
+	// 	planetSettings.setTransformOptions.scaleY,
+	// 	planetSettings.setTransformOptions.skewX,
+	// 	planetSettings.setTransformOptions.skewY
+	// )
+	// .drawCircle(planetSettings.drawCircleOptions);
+	// planet.interactive = planetSettings.interactiveSetting;
+	isometryPlane.addChild(planet);
 }
