@@ -4,7 +4,6 @@ Goals:
 9. Test how adding an orbital line looks --- need to adjust this
 11. Create a create planet function 
 12. Add multiple planets
-13. Add in the navbar
 14. Add in the Relativity toolbar
 15. Create a function that creates info boxes for planets 
 16. Begin work on individual page view
@@ -15,6 +14,8 @@ Goals:
 22. Solve the whole delta/step problem with
 23. Add a nicer info text load? Lower priority
 24. Fix Mars' texture frame glitching at start (maybe I can change the start position?)
+26. Write in the navbar links
+27. Add the links to the hover effects.
 
 COMPLETED:
 1. Get the initial sun setup DONE 03/13
@@ -25,7 +26,9 @@ COMPLETED:
 7. Make the planet stop when hover DONE 03/16
 8. Make the planet restart when stopped hovering DONE 03/16
 10. Add an info box upon hovering DONE 03/15
+13. Add in the navbar DONE 03/17
 21. Add setting for planet's initial positioning (Can set via the STEP attribute) DONE 03/16
+25. Make the Navbar always collapsable hamburger DONE 03/17
 
 */
 
@@ -38,7 +41,7 @@ let mainScreenState = {
 var canvas = document.getElementById("stage");
 var rendererOptions = {
 	width: window.innerWidth,
-	height: window.innerHeight,
+	height: window.innerHeight - 56,
 	view: canvas,
 	resolution: window.devicePixelRatio,
 	autoDensity: true,
@@ -168,14 +171,15 @@ function setup() {
 		// 	interactiveSetting: true
 	};
 
-	window.marsInfo = new PIXI.Graphics()
-		.lineStyle(2, 0xc3b6aa)
+	let marsInfo = new PIXI.Graphics()
+		.lineStyle(2, 0xc07158)
 		.beginFill(0x0c0d0c)
 		.setTransform(_, _, _, 2, _, _)
 		.drawRoundedRect(0, 0, 400, 200, 50);
 	marsInfo.visible = false;
 	isometryPlane.addChild(marsInfo);
 	planetConstructor(marsGraphic, marsTexture, marsSettings);
+
 	let marsText = new PIXI.Text(
 		"Name: Bridgewater \nTitle: Associate \nYears: 2017-2018",
 		planetTextOptions
@@ -235,7 +239,7 @@ function setup() {
 			}
 		});
 
-		//control scrolling of a planets texture/background
+		//control scrolling of sun's texture/background
 		sunTexture.frame.width = 200 + textureTicker / 3;
 		sunTexture.updateUvs();
 		sunGraphic.geometry.invalidate();
@@ -256,17 +260,9 @@ function setup() {
 	}
 }
 
-//PLACEHOLDER ONLY for controlling orbits of planets
-function position(step, speed, radius, sprite) {
-	sprite = this;
-	this.position.set(
-		Math.cos(step * speed) * radius,
-		Math.sin(step * speed) * radius
-	);
-}
-
 function planetConstructor(planet, planetTexture, planetSettings) {
 	planet.lineStyle(planetSettings.lineStyleOptions);
+
 	// .beginTextureFill(planetSettings.texture)
 	// .setTransform(
 	// 	planetSettings.setTransformOptions.x,
