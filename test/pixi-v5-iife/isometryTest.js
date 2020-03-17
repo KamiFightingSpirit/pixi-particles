@@ -61,15 +61,6 @@ app.stage.addChild(planetContainer);
 const isometryPlane = new PIXI.Graphics();
 planetContainer.addChild(isometryPlane);
 
-//Build Orbital Lines
-isometryPlane.lineStyle(1.2, 0xffffff);
-let maxRadius = 1300;
-for (let i = 300; i <= maxRadius; i += 150) {
-	isometryPlane.drawCircle(0, 0, i);
-	// isometryPlane.drawRoundedRect(200, 200, i, i + 50, 100); //can maybe use this as framing for my window popup on planet hoves
-	// isometryPlane.drawEllipse(0, 0, i, i + 30); //by extending y you can vary the height of a circle with this.
-}
-
 //create the loader
 const loader = PIXI.Loader.shared;
 loader
@@ -78,6 +69,7 @@ loader
 	.add("./assets/sunShrunk.jpg")
 	.add("./assets/sun.jpg")
 	.add("./assets/mars.jpg")
+	.add("./assets/earthcloudmap.jpg")
 	.load(setup);
 function setup() {
 	let sunTexture =
@@ -187,6 +179,38 @@ function setup() {
 	marsText.position.set(30, 30); //moves text within the box
 	marsInfo.addChild(marsText);
 
+	/* START OF NEW PLANET */
+
+	let cyberburnTexture =
+		PIXI.Loader.shared.resources["./assets/earthcloudmap.jpg"].texture;
+	cyberburnTexture.frame = new PIXI.Rectangle(0, 0, 400, 400); //Texture.frame (x, y, width, height)
+	let cyberburnGraphic = new PIXI.Graphics()
+		.lineStyle(18, 0xb3caff, 0.25, 0.5) //add atmostphere
+		.beginTextureFill(cyberburnTexture)
+		.setTransform(_, _, _, 2, _, _) //setTransform(x, y, x-scale,y-scale,xkew,yskew )
+		.drawCircle(0, 0, 90)
+		.endFill();
+	cyberburnGraphic.interactive = true;
+	isometryPlane.addChild(cyberburnGraphic);
+
+	//create an infographic for on hover
+	let cyberburnInfo = new PIXI.Graphics()
+		.lineStyle(2, 0xb3caff)
+		.beginFill(0x0c0d0c)
+		.setTransform(_, _, _, 2, _, _)
+		.drawRoundedRect(0, 0, 400, 200, 50);
+	cyberburnInfo.visible = false;
+	isometryPlane.addChild(cyberburnInfo);
+
+	let cyberburnText = new PIXI.Text(
+		"Name: Cyberburn \nTitle: Owner and CEO \nYears: 2009-2015",
+		planetTextOptions
+	);
+	cyberburnText.position.set(30, 30); //moves text within the box
+	cyberburnInfo.addChild(cyberburnText);
+
+	/*END OF NEW PLANET*/
+
 	let textureTicker = 0;
 	let planetSpeed = 0.015;
 
@@ -205,13 +229,33 @@ function setup() {
 		texture: marsTexture,
 		info: marsInfo,
 		radius: 750,
-		speedFactor: 1.15,
+		speedFactor: 0.68,
 		textureTickerFactor: -7,
 		hovering: false,
 		step: 120000
 	};
+	let cyberburnOrbitControl = {
+		graphic: cyberburnGraphic,
+		texture: cyberburnTexture,
+		info: cyberburnInfo,
+		radius: 1050,
+		speedFactor: 1.15,
+		textureTickerFactor: 4,
+		hovering: false,
+		step: 190000
+	};
 
-	let planetOrbitControlArr = [plutoOrbitControl, marsOrbitControl];
+	let planetOrbitControlArr = [
+		plutoOrbitControl,
+		marsOrbitControl,
+		cyberburnOrbitControl
+	];
+
+	//Build Orbital Lines
+	isometryPlane.lineStyle(1.2, 0xffffff);
+	planetOrbitControlArr.map(planet => {
+		isometryPlane.drawCircle(0, 0, planet.radius);
+	});
 
 	app.ticker.add(delta => {
 		textureTicker += 0.7;
@@ -250,6 +294,8 @@ function setup() {
 	plutoGraphic.on("mouseout", plutoHoverEffects);
 	marsGraphic.on("mouseover", marsHoverEffects);
 	marsGraphic.on("mouseout", marsHoverEffects);
+	cyberburnGraphic.on("mouseover", cyberburnHoverEffects);
+	cyberburnGraphic.on("mouseout", cyberburnHoverEffects);
 	function plutoHoverEffects() {
 		plutoInfo.visible = !plutoInfo.visible;
 		plutoOrbitControl.hovering = !plutoOrbitControl.hovering;
@@ -257,6 +303,10 @@ function setup() {
 	function marsHoverEffects() {
 		marsInfo.visible = !marsInfo.visible;
 		marsOrbitControl.hovering = !marsOrbitControl.hovering;
+	}
+	function cyberburnHoverEffects() {
+		cyberburnInfo.visible = !cyberburnInfo.visible;
+		cyberburnOrbitControl.hovering = !cyberburnOrbitControl.hovering;
 	}
 }
 
@@ -276,3 +326,5 @@ function planetConstructor(planet, planetTexture, planetSettings) {
 	// planet.interactive = planetSettings.interactiveSetting;
 	isometryPlane.addChild(planet);
 }
+// isometryPlane.drawRoundedRect(200, 200, i, i + 50, 100); //can maybe use this as framing for my window popup on planet hoves
+// isometryPlane.drawEllipse(0, 0, i, i + 30); //by extending y you can vary the height of a circle with this.
