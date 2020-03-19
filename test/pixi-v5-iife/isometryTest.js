@@ -1,30 +1,5 @@
 /*
 Goals:
-
-9. Test how adding an orbital line looks --- need to adjust this
-11. Create a create planet function 
-12. Add multiple planets
-14. Add in the Relativity toolbar
-15. Create a function that creates info boxes for planets 
-16. Begin work on individual page view
-17. Load the images properly via loader
-18. Figure out how to do different frame scrolls without picture glitching -- let's hope this isn't necessary....
-
-20. Set z-index of info boxes to always be highest
-22. Solve the whole delta/step problem with 
-26. Write in the navbar links
-27. Add the links to the hover effects.
-28. understand z-index and see if you can shrink the orbits.
-
-
-Nice to haves:
-1. Make everything resize on screen resize
-2. Add a text animation effect on planets 
-3. Make the resize happen when you drop down the nav
-4. Make the texture frame wiggle up and down
-5. Add shading to the planet
-6. Make a planet texture move backwards without glitching
-
 COMPLETED:
 1. Get the initial sun setup DONE 03/13
 2. Add a corona to the sun -> to be used as atmostphere DONE 03/13
@@ -40,7 +15,31 @@ COMPLETED:
 29. Randomize planet's initial position DONE 03/19
 24. Fix Mars' texture frame glitching at start DONE 03/18
 19. Get everything to accurately reposition upon resize DONE 03/19
+9. Test how adding an orbital line looks DONE 03/19
+12. Add multiple planets DONE 03/19
+17. Load the images properly via loader DONE 03/19
+22. Solve the whole delta/step problem with DONE 03/16
 
+TO DO:
+11. Create a create planet function 
+14. Add in the Relativity toolbar
+15. Create a function that creates info boxes for planets 
+16. Begin work on individual page view
+20. Set z-index of info boxes to always be highest
+26. Write in the navbar links
+27. Add the links to the hover effects.
+28. understand z-index and see if you can shrink the orbits.
+30. Add in an animated background (LARGEST NICE TO HAVE BUT WILL USE EVERYWHERE)
+31. Get rid of the random 200 in texture ticker update
+
+NICE TO HAVES:
+1. Make everything resize on screen resize
+2. Add a text animation effect on planets 
+3. Make the resize happen when you drop down the nav
+4. Make the texture frame wiggle up and down
+5. Add shading to the planet
+6. Make a planet texture move backwards without glitching
+7. Make orbit lines look better in terms of zindex (not sure...)
 */
 
 PIXI.utils.skipHello(); // remove pixi message in console
@@ -69,7 +68,9 @@ planetContainer.scale.x = 0.5;
 planetContainer.position.set(app.screen.width / 2, app.screen.height / 2);
 app.stage.addChild(planetContainer);
 
+//Is this actually necessary? Why don't I just have a separate
 const isometryPlane = new PIXI.Graphics();
+isometryPlane.sortableChildren = true;
 planetContainer.addChild(isometryPlane);
 
 //create the loader
@@ -228,11 +229,7 @@ function setup() {
 
 	let otherTexture =
 		PIXI.Loader.shared.resources["./assets/jupiter1k.jpg"].texture;
-	console.log(otherTexture.width, otherTexture.height);
 	otherTexture.frame = new PIXI.Rectangle(0, 0, 900, 450); //Texture.frame (x, y, width, height)
-
-	//jupitermap(1000,500)
-	//venusbump(1000,500)
 
 	let otherGraphic = new PIXI.Graphics()
 		.lineStyle(18, 0xb3caff, 0.25, 0.5) //add atmostphere
@@ -253,11 +250,15 @@ function setup() {
 	isometryPlane.addChild(otherInfo);
 
 	let otherText = new PIXI.Text(
-		"Name: Cyberburn \nTitle: Owner and CEO \nYears: 2009-2015",
+		"Name: Education and Other\nSchool: UVA - McIntire\nYears: 2009-2015",
 		planetTextOptions
 	);
-	otherText.position.set(30, 30); //moves text within the box
+	otherText.position.set(30, 30);
 	otherInfo.addChild(otherText);
+
+	console.log(cyberburnGraphic.localTransform.get);
+	console.log(cyberburnGraphic.localTransform);
+	console.log(cyberburnGraphic);
 
 	/*END OF NEW PLANET*/
 
