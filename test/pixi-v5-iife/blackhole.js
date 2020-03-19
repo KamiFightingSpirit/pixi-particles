@@ -1,6 +1,3 @@
-// / <reference path="node_modules/pixi-particles/ambient.d.ts" />
-// / <reference path="node_modules/pixi.js/pixi.js.d.ts" />
-
 var imagePaths = ["docs/examples/images/particle.png"];
 
 PIXI.utils.skipHello(); // remove pixi message in console
@@ -378,9 +375,6 @@ function spaceCowboyAnimation(sCowboyChildren, sCowboyFilter) {
 	let posY = -80;
 	let baseDelay = 470;
 
-	//printing out filter of a child to write a tween for it
-
-	console.log(sCowboyContainer.children[0].filters[0]);
 	// sCowboyContainer.children[0].filters[0].blur = 0;
 	// //Tweens for "See"
 	let alphaTweenZero2 = new TWEEN.Tween(sCowboyChildren[0])

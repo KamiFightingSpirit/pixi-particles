@@ -1,6 +1,6 @@
 /*
 Goals:
-6. Add shading to the planet -- let's hope this isn't necessary....
+
 9. Test how adding an orbital line looks --- need to adjust this
 11. Create a create planet function 
 12. Add multiple planets
@@ -9,13 +9,21 @@ Goals:
 16. Begin work on individual page view
 17. Load the images properly via loader
 18. Figure out how to do different frame scrolls without picture glitching -- let's hope this isn't necessary....
-19. Get everything to accurately reposition upon resize
+
 20. Set z-index of info boxes to always be highest
-22. Solve the whole delta/step problem with
-23. Add a nicer info text load? Lower priority
-24. Fix Mars' texture frame glitching at start (maybe I can change the start position?)
+22. Solve the whole delta/step problem with 
 26. Write in the navbar links
 27. Add the links to the hover effects.
+28. understand z-index and see if you can shrink the orbits.
+
+
+Nice to haves:
+1. Make everything resize on screen resize
+2. Add a text animation effect on planets 
+3. Make the resize happen when you drop down the nav
+4. Make the texture frame wiggle up and down
+5. Add shading to the planet
+6. Make a planet texture move backwards without glitching
 
 COMPLETED:
 1. Get the initial sun setup DONE 03/13
@@ -29,6 +37,9 @@ COMPLETED:
 13. Add in the navbar DONE 03/17
 21. Add setting for planet's initial positioning (Can set via the STEP attribute) DONE 03/16
 25. Make the Navbar always collapsable hamburger DONE 03/17
+29. Randomize planet's initial position DONE 03/19
+24. Fix Mars' texture frame glitching at start DONE 03/18
+19. Get everything to accurately reposition upon resize DONE 03/19
 
 */
 
@@ -41,7 +52,7 @@ let mainScreenState = {
 var canvas = document.getElementById("stage");
 var rendererOptions = {
 	width: window.innerWidth,
-	height: window.innerHeight - 56,
+	height: window.innerHeight,
 	view: canvas,
 	resolution: window.devicePixelRatio,
 	autoDensity: true,
@@ -64,12 +75,18 @@ planetContainer.addChild(isometryPlane);
 //create the loader
 const loader = PIXI.Loader.shared;
 loader
+	.add("./assets/earthcloudmap.jpg") //cyberburn
+	.add("./assets/jupiter1k.jpg")
+	.add("./assets/jupitermap.jpg")
+	.add("./assets/mars.jpg") //mars
+	.add("./assets/mercurymap.jpg")
+	.add("./assets/plutomap1k.jpg") //pluto
 	.add("./assets/plutoShrunk.jpg")
-	.add("./assets/plutomap1k.jpg")
-	.add("./assets/sunShrunk.jpg")
 	.add("./assets/sun.jpg")
-	.add("./assets/mars.jpg")
-	.add("./assets/earthcloudmap.jpg")
+	.add("./assets/sunShrunk.jpg") //sun
+	.add("./assets/venusbump.jpg")
+	.add("./assets/venusmap.jpg")
+
 	.load(setup);
 function setup() {
 	let sunTexture =
@@ -135,7 +152,7 @@ function setup() {
 	plutoInfo.addChild(plutoText);
 
 	let marsTexture = PIXI.Loader.shared.resources["./assets/mars.jpg"].texture;
-	marsTexture.frame = new PIXI.Rectangle(0, 0, 700, 300);
+	marsTexture.frame = new PIXI.Rectangle(-250, -150, 250, 150);
 	let marsGraphic = new PIXI.Graphics()
 		.lineStyle(8, 0xc07158, 0.25, 0.8) //add atmostphere
 		.beginTextureFill(marsTexture)
@@ -179,8 +196,6 @@ function setup() {
 	marsText.position.set(30, 30); //moves text within the box
 	marsInfo.addChild(marsText);
 
-	/* START OF NEW PLANET */
-
 	let cyberburnTexture =
 		PIXI.Loader.shared.resources["./assets/earthcloudmap.jpg"].texture;
 	cyberburnTexture.frame = new PIXI.Rectangle(0, 0, 400, 400); //Texture.frame (x, y, width, height)
@@ -209,6 +224,41 @@ function setup() {
 	cyberburnText.position.set(30, 30); //moves text within the box
 	cyberburnInfo.addChild(cyberburnText);
 
+	/* START OF NEW PLANET */
+
+	let otherTexture =
+		PIXI.Loader.shared.resources["./assets/jupiter1k.jpg"].texture;
+	console.log(otherTexture.width, otherTexture.height);
+	otherTexture.frame = new PIXI.Rectangle(0, 0, 900, 450); //Texture.frame (x, y, width, height)
+
+	//jupitermap(1000,500)
+	//venusbump(1000,500)
+
+	let otherGraphic = new PIXI.Graphics()
+		.lineStyle(18, 0xb3caff, 0.25, 0.5) //add atmostphere
+		.beginTextureFill(otherTexture)
+		.setTransform(_, _, _, 2, _, _) //setTransform(x, y, x-scale,y-scale,xkew,yskew )
+		.drawCircle(0, 0, 90)
+		.endFill();
+	otherGraphic.interactive = true;
+	isometryPlane.addChild(otherGraphic);
+
+	//create an infographic for on hover
+	let otherInfo = new PIXI.Graphics()
+		.lineStyle(2, 0xb3caff)
+		.beginFill(0x0c0d0c)
+		.setTransform(_, _, _, 2, _, _)
+		.drawRoundedRect(0, 0, 400, 200, 50);
+	otherInfo.visible = false;
+	isometryPlane.addChild(otherInfo);
+
+	let otherText = new PIXI.Text(
+		"Name: Cyberburn \nTitle: Owner and CEO \nYears: 2009-2015",
+		planetTextOptions
+	);
+	otherText.position.set(30, 30); //moves text within the box
+	otherInfo.addChild(otherText);
+
 	/*END OF NEW PLANET*/
 
 	let textureTicker = 0;
@@ -220,9 +270,9 @@ function setup() {
 		info: plutoInfo,
 		radius: 450,
 		speedFactor: 1,
-		textureTickerFactor: 1,
+		textureTickerFactor: 0.9,
 		hovering: false,
-		step: 0 //can use this as a hacky way to set initial position
+		step: Math.floor(Math.random() * Math.floor(8000)) //randomize initial position
 	};
 	let marsOrbitControl = {
 		graphic: marsGraphic,
@@ -230,9 +280,9 @@ function setup() {
 		info: marsInfo,
 		radius: 750,
 		speedFactor: 0.68,
-		textureTickerFactor: -7,
+		textureTickerFactor: 10,
 		hovering: false,
-		step: 120000
+		step: Math.floor(Math.random() * Math.floor(8000))
 	};
 	let cyberburnOrbitControl = {
 		graphic: cyberburnGraphic,
@@ -242,13 +292,24 @@ function setup() {
 		speedFactor: 1.15,
 		textureTickerFactor: 4,
 		hovering: false,
-		step: 190000
+		step: Math.floor(Math.random() * Math.floor(8000))
+	};
+	let otherOrbitControl = {
+		graphic: otherGraphic,
+		texture: otherTexture,
+		info: otherInfo,
+		radius: 900,
+		speedFactor: 1.15,
+		textureTickerFactor: 4,
+		hovering: false,
+		step: Math.floor(Math.random() * Math.floor(8000))
 	};
 
 	let planetOrbitControlArr = [
 		plutoOrbitControl,
 		marsOrbitControl,
-		cyberburnOrbitControl
+		cyberburnOrbitControl,
+		otherOrbitControl
 	];
 
 	//Build Orbital Lines
@@ -256,6 +317,13 @@ function setup() {
 	planetOrbitControlArr.map(planet => {
 		isometryPlane.drawCircle(0, 0, planet.radius);
 	});
+
+	// let navContainer = new PIXI.Container();
+	// navContainer.position.set(0, 0);
+	// app.stage.addChild(navContainer);
+
+	// let headerOne = new PIXI.Text("Overview:", planetTextOptions);
+	// navContainer.addChild(headerOne);
 
 	app.ticker.add(delta => {
 		textureTicker += 0.7;
@@ -296,6 +364,8 @@ function setup() {
 	marsGraphic.on("mouseout", marsHoverEffects);
 	cyberburnGraphic.on("mouseover", cyberburnHoverEffects);
 	cyberburnGraphic.on("mouseout", cyberburnHoverEffects);
+	otherGraphic.on("mouseover", otherHoverEffects);
+	otherGraphic.on("mouseout", otherHoverEffects);
 	function plutoHoverEffects() {
 		plutoInfo.visible = !plutoInfo.visible;
 		plutoOrbitControl.hovering = !plutoOrbitControl.hovering;
@@ -308,7 +378,29 @@ function setup() {
 		cyberburnInfo.visible = !cyberburnInfo.visible;
 		cyberburnOrbitControl.hovering = !cyberburnOrbitControl.hovering;
 	}
+	function otherHoverEffects() {
+		otherInfo.visible = !otherInfo.visible;
+		otherOrbitControl.hovering = !otherOrbitControl.hovering;
+	}
 }
+
+// Cleanly center emitter upon window resize
+window.onresize = function() {
+	//resize the canvas to the size of the window
+	let _w = window.innerWidth;
+	let _h = window.innerHeight;
+	app.renderer.resize(_w, _h);
+	//recenters all containers upon resize.
+	app.stage.children.map(container => {
+		container.position.set(
+			app.renderer.screen.width / 2,
+			app.renderer.screen.height / 2
+		);
+	});
+};
+window.addEventListener("resize", window.onresize());
+
+//TEMPORY WORK BELOW THIS
 
 function planetConstructor(planet, planetTexture, planetSettings) {
 	planet.lineStyle(planetSettings.lineStyleOptions);
