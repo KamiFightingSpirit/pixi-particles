@@ -25,7 +25,7 @@ COMPLETED:
 
 TO DO:
 11. Create a create planet function 
-14. Add in the Relativity toolbar
+14. Add in the Relativity toolbar -- wait until React import
 15. Create a function that creates info boxes for planets 
 16. Begin work on individual page view
 26. Write in the navbar links
@@ -34,6 +34,7 @@ TO DO:
 31. Get rid of the random 200 in texture ticker update
 32. Properly adjust the wordWrapWidth on info boxes
 33. Cleanup the event listeners section DRY CODE
+34. Add in contact me icons in navbar
 
 NICE TO HAVES:
 1. Make everything resize on screen resize
@@ -43,6 +44,7 @@ NICE TO HAVES:
 5. Add shading to the planet
 6. Make a planet texture move backwards without glitching
 7. Make orbit lines look better in terms of zindex (not sure...)
+8. Maybe work on the random function for the planets initial positioning... have some sort of a guaranteed space between them
 */
 
 PIXI.utils.skipHello(); // remove pixi message in console
@@ -100,7 +102,7 @@ function setup() {
 		fill: "white",
 		fontWeight: "800",
 		wordWrap: true,
-		wordWrapWidth: 300,
+		wordWrapWidth: 400,
 		leading: 4,
 		resolution: 3
 	};
@@ -136,12 +138,15 @@ function setup() {
 	sunInfo.visible = false;
 	isometryPlane.addChild(sunInfo);
 
-	let sunText = new PIXI.Text(
-		"Name: Education and Other\nSchool: UVA - McIntire\nYears: 2009-2015",
-		planetTextOptions
+	let sunText = new PIXI.Text("About\nThis\nSite", planetTextOptions);
+	sunText.position.set(
+		sunInfo.width / 4 + sunText.width / 4,
+		sunInfo.height / 10 - sunText.height / 5
 	);
-	sunText.position.set(30, 30);
+	sunText.style.fontSize = 50;
+	sunText.style.align = "center";
 	sunInfo.addChild(sunText);
+	console.log(sunInfo.height, sunText.width);
 
 	let plutoTexture =
 		PIXI.Loader.shared.resources["./assets/plutomap1k.jpg"].texture;
@@ -169,7 +174,8 @@ function setup() {
 		"Name: BlackRock \nTitle: Analyst \nYears: 2015-2017",
 		planetTextOptions
 	);
-	plutoText.position.set(30, 30); //moves text within the box
+	plutoText.style.align = "center";
+	plutoText.position.set(65, 35); //moves text within the box
 	plutoInfo.addChild(plutoText);
 
 	let marsTexture = PIXI.Loader.shared.resources["./assets/mars.jpg"].texture;
@@ -189,16 +195,6 @@ function setup() {
 			alpha: 0.25,
 			alignment: 0.5
 		}
-		// 	setTransformOptions: {
-		// 		x: _,
-		// 		y: _,
-		// 		scaleX: _,
-		// 		scaleY: 2,
-		// 		skewX: _,
-		// 		skewY: _
-		// 	},
-		// 	drawCircleOptions: { x: 0, y: 0, radius: 500 },
-		// 	interactiveSetting: true
 	};
 
 	let marsInfo = new PIXI.Graphics()
@@ -215,7 +211,8 @@ function setup() {
 		"Name: Bridgewater \nTitle: Associate \nYears: 2017-2018",
 		planetTextOptions
 	);
-	marsText.position.set(30, 30); //moves text within the box
+	marsText.style.align = "center";
+	marsText.position.set(55, 35); //moves text within the box
 	marsInfo.addChild(marsText);
 
 	let cyberburnTexture =
@@ -244,6 +241,7 @@ function setup() {
 		"Name: Cyberburn \nTitle: Owner and CEO \nYears: 2009-2015",
 		planetTextOptions
 	);
+	cyberburnText.style.align = "center";
 	cyberburnText.position.set(30, 30); //moves text within the box
 	cyberburnInfo.addChild(cyberburnText);
 
@@ -273,13 +271,25 @@ function setup() {
 	isometryPlane.addChild(otherInfo);
 
 	let otherText = new PIXI.Text(
-		"Name: Education and Other\nSchool: UVA - McIntire\nYears: 2009-2015",
+		"Tech and Programming Experience\nYears: 2009-2020",
 		planetTextOptions
 	);
-	otherText.position.set(30, 30);
+	otherText.style.align = "center";
+	otherText.position.set(25, 35);
 	otherInfo.addChild(otherText);
 
-	/*END OF NEW PLANET*/
+	//ADDING IN A DYNAMIC BACKGROUND
+	let starContainer = new PIXI.Container();
+	let starTexture = new PIXI.Graphics();
+	starTexture
+		.lineStyle(1, 0xc0c0c0, 0.8, 0)
+		.beginFill(0xc0c0c0, 0.8)
+		.drawStar(0, 0, 5, 2, 1)
+		.endFill();
+	let starSprite = new PIXI.Sprite();
+	starSprite.anchor.set(0.5, 0.5).beginTextureFill(starTexture);
+
+	//END OF ADDING IN DYNAMIC BACKGROUND
 
 	let textureTicker = 0;
 	let planetSpeed = 0.015;
@@ -310,7 +320,7 @@ function setup() {
 		texture: marsTexture,
 		info: marsInfo,
 		orbitRadius: 450,
-		speedFactor: 0.68,
+		speedFactor: 1.1,
 		textureTickerFactor: 10,
 		hovering: false,
 		step: Math.floor(Math.random() * Math.floor(8000))
