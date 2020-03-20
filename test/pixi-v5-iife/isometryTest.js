@@ -18,19 +18,22 @@ COMPLETED:
 9. Test how adding an orbital line looks DONE 03/19
 12. Add multiple planets DONE 03/19
 17. Load the images properly via loader DONE 03/19
+20. Set z-index of info boxes to always be highest DONE 03/20
 22. Solve the whole delta/step problem with DONE 03/16
+28. understand z-index and see if you can shrink the orbits. DONE 03/20
+
 
 TO DO:
 11. Create a create planet function 
 14. Add in the Relativity toolbar
 15. Create a function that creates info boxes for planets 
 16. Begin work on individual page view
-20. Set z-index of info boxes to always be highest
 26. Write in the navbar links
 27. Add the links to the hover effects.
-28. understand z-index and see if you can shrink the orbits.
 30. Add in an animated background (LARGEST NICE TO HAVE BUT WILL USE EVERYWHERE)
 31. Get rid of the random 200 in texture ticker update
+32. Properly adjust the wordWrapWidth on info boxes
+33. Cleanup the event listeners section DRY CODE
 
 NICE TO HAVES:
 1. Make everything resize on screen resize
@@ -90,6 +93,18 @@ loader
 
 	.load(setup);
 function setup() {
+	//Cinzel|Noto+Serif|Titilliu
+	let planetTextOptions = {
+		fontFamily: "Noto+Serif",
+		fontSize: 35,
+		fill: "white",
+		fontWeight: "800",
+		wordWrap: true,
+		wordWrapWidth: 300,
+		leading: 4,
+		resolution: 3
+	};
+
 	let sunTexture =
 		PIXI.Loader.shared.resources["./assets/sunShrunk.jpg"].texture;
 	sunTexture.frame = new PIXI.Rectangle(2, 0, 200, 100); //Texture.frame (x, y, width, height)
@@ -111,6 +126,23 @@ function setup() {
 	];
 	isometryPlane.addChild(backgroundSun);
 
+	//create an infographic for on hover
+	let sunInfo = new PIXI.Graphics()
+		.lineStyle(2, 0xc9b799)
+		.beginFill(0x0c0d0c)
+		.setTransform(_, _, _, 2, _, _)
+		.drawRoundedRect(0, 0, 400, 200, 50);
+	sunInfo.zIndex = 10000;
+	sunInfo.visible = false;
+	isometryPlane.addChild(sunInfo);
+
+	let sunText = new PIXI.Text(
+		"Name: Education and Other\nSchool: UVA - McIntire\nYears: 2009-2015",
+		planetTextOptions
+	);
+	sunText.position.set(30, 30);
+	sunInfo.addChild(sunText);
+
 	let plutoTexture =
 		PIXI.Loader.shared.resources["./assets/plutomap1k.jpg"].texture;
 	plutoTexture.frame = new PIXI.Rectangle(0, 0, 200, 250); //Texture.frame (x, y, width, height)
@@ -129,21 +161,9 @@ function setup() {
 		.beginFill(0x0c0d0c)
 		.setTransform(_, _, _, 2, _, _)
 		.drawRoundedRect(0, 0, 400, 200, 50);
+	plutoInfo.zIndex = 10000;
 	plutoInfo.visible = false;
 	isometryPlane.addChild(plutoInfo);
-
-	//
-	//Cinzel|Noto+Serif|Titilliu
-	let planetTextOptions = {
-		fontFamily: "Noto+Serif",
-		fontSize: 35,
-		fill: "white",
-		fontWeight: "800",
-		wordWrap: true,
-		wordWrapWidth: plutoInfo.width - 40,
-		leading: 4,
-		resolution: 3
-	};
 
 	let plutoText = new PIXI.Text(
 		"Name: BlackRock \nTitle: Analyst \nYears: 2015-2017",
@@ -186,6 +206,7 @@ function setup() {
 		.beginFill(0x0c0d0c)
 		.setTransform(_, _, _, 2, _, _)
 		.drawRoundedRect(0, 0, 400, 200, 50);
+	marsInfo.zIndex = 10000;
 	marsInfo.visible = false;
 	isometryPlane.addChild(marsInfo);
 	planetConstructor(marsGraphic, marsTexture, marsSettings);
@@ -215,6 +236,7 @@ function setup() {
 		.beginFill(0x0c0d0c)
 		.setTransform(_, _, _, 2, _, _)
 		.drawRoundedRect(0, 0, 400, 200, 50);
+	cyberburnInfo.zIndex = 10000;
 	cyberburnInfo.visible = false;
 	isometryPlane.addChild(cyberburnInfo);
 
@@ -232,7 +254,7 @@ function setup() {
 	otherTexture.frame = new PIXI.Rectangle(0, 0, 900, 450); //Texture.frame (x, y, width, height)
 
 	let otherGraphic = new PIXI.Graphics()
-		.lineStyle(18, 0xb3caff, 0.25, 0.5) //add atmostphere
+		.lineStyle(12, 0xf2ddbb, 0.25, 0.5) //add atmostphere
 		.beginTextureFill(otherTexture)
 		.setTransform(_, _, _, 2, _, _) //setTransform(x, y, x-scale,y-scale,xkew,yskew )
 		.drawCircle(0, 0, 90)
@@ -242,10 +264,11 @@ function setup() {
 
 	//create an infographic for on hover
 	let otherInfo = new PIXI.Graphics()
-		.lineStyle(2, 0xb3caff)
+		.lineStyle(2, 0xc9b799)
 		.beginFill(0x0c0d0c)
 		.setTransform(_, _, _, 2, _, _)
 		.drawRoundedRect(0, 0, 400, 200, 50);
+	otherInfo.zIndex = 10000;
 	otherInfo.visible = false;
 	isometryPlane.addChild(otherInfo);
 
@@ -256,20 +279,27 @@ function setup() {
 	otherText.position.set(30, 30);
 	otherInfo.addChild(otherText);
 
-	console.log(cyberburnGraphic.localTransform.get);
-	console.log(cyberburnGraphic.localTransform);
-	console.log(cyberburnGraphic);
-
 	/*END OF NEW PLANET*/
 
 	let textureTicker = 0;
 	let planetSpeed = 0.015;
 
+	let sunOrbitControl = {
+		graphic: sunGraphic,
+		texture: sunTexture,
+		info: sunInfo,
+		orbitRadius: _,
+		speedFactor: _,
+		textureTickerFactor: 0.33,
+		hover: false,
+		step: _
+	};
+
 	let plutoOrbitControl = {
 		graphic: plutoGraphic,
 		texture: plutoTexture,
 		info: plutoInfo,
-		radius: 450,
+		orbitRadius: 300,
 		speedFactor: 1,
 		textureTickerFactor: 0.9,
 		hovering: false,
@@ -279,7 +309,7 @@ function setup() {
 		graphic: marsGraphic,
 		texture: marsTexture,
 		info: marsInfo,
-		radius: 750,
+		orbitRadius: 450,
 		speedFactor: 0.68,
 		textureTickerFactor: 10,
 		hovering: false,
@@ -289,8 +319,8 @@ function setup() {
 		graphic: cyberburnGraphic,
 		texture: cyberburnTexture,
 		info: cyberburnInfo,
-		radius: 1050,
-		speedFactor: 1.15,
+		orbitRadius: 700,
+		speedFactor: 0.5,
 		textureTickerFactor: 4,
 		hovering: false,
 		step: Math.floor(Math.random() * Math.floor(8000))
@@ -299,14 +329,15 @@ function setup() {
 		graphic: otherGraphic,
 		texture: otherTexture,
 		info: otherInfo,
-		radius: 900,
-		speedFactor: 1.15,
+		orbitRadius: 900,
+		speedFactor: 0.5,
 		textureTickerFactor: 4,
 		hovering: false,
 		step: Math.floor(Math.random() * Math.floor(8000))
 	};
 
 	let planetOrbitControlArr = [
+		sunOrbitControl,
 		plutoOrbitControl,
 		marsOrbitControl,
 		cyberburnOrbitControl,
@@ -316,49 +347,45 @@ function setup() {
 	//Build Orbital Lines
 	isometryPlane.lineStyle(1.2, 0xffffff);
 	planetOrbitControlArr.map(planet => {
-		isometryPlane.drawCircle(0, 0, planet.radius);
+		isometryPlane.drawCircle(0, 0, planet.orbitRadius);
 	});
-
-	// let navContainer = new PIXI.Container();
-	// navContainer.position.set(0, 0);
-	// app.stage.addChild(navContainer);
-
-	// let headerOne = new PIXI.Text("Overview:", planetTextOptions);
-	// navContainer.addChild(headerOne);
 
 	app.ticker.add(delta => {
 		textureTicker += 0.7;
 
 		//Controls the positioning and texture scrolling of all planets
 		planetOrbitControlArr.map(planet => {
+			//texture scrolling
 			planet.texture.frame.width =
 				200 + textureTicker * planet.textureTickerFactor;
 			planet.texture.updateUvs();
 			planet.graphic.geometry.invalidate();
-			if (!planet.hovering) {
-				planet.step += delta;
-				planet.graphic.position.set(
-					Math.cos(planet.step * planetSpeed * planet.speedFactor) *
-						planet.radius,
-					Math.sin(planet.step * planetSpeed * planet.speedFactor) *
-						planet.radius
-				);
-				planet.info.position.set(
-					Math.cos(planet.step * planetSpeed * planet.speedFactor) *
-						planet.radius,
-					Math.sin(planet.step * planetSpeed * planet.speedFactor) *
-						planet.radius
-				);
+			//positioning of planet and infoText
+			if (planet.orbitRadius) {
+				if (!planet.hovering) {
+					planet.step += delta;
+					planet.graphic.position.set(
+						Math.cos(planet.step * planetSpeed * planet.speedFactor) *
+							planet.orbitRadius,
+						Math.sin(planet.step * planetSpeed * planet.speedFactor) *
+							planet.orbitRadius
+					);
+					planet.info.position.set(
+						Math.cos(planet.step * planetSpeed * planet.speedFactor) *
+							planet.orbitRadius,
+						Math.sin(planet.step * planetSpeed * planet.speedFactor) *
+							planet.orbitRadius
+					);
+				}
 			}
+			//Adjust the zIndex of planets based on their y-position
+			planet.graphic.zIndex = Math.floor(planet.graphic.position.y);
 		});
-
-		//control scrolling of sun's texture/background
-		sunTexture.frame.width = 200 + textureTicker / 3;
-		sunTexture.updateUvs();
-		sunGraphic.geometry.invalidate();
 	});
 
 	//Add event listeners
+	sunGraphic.on("mouseover", sunHoverEffects);
+	sunGraphic.on("mouseout", sunHoverEffects);
 	plutoGraphic.on("mouseover", plutoHoverEffects);
 	plutoGraphic.on("mouseout", plutoHoverEffects);
 	marsGraphic.on("mouseover", marsHoverEffects);
@@ -367,6 +394,10 @@ function setup() {
 	cyberburnGraphic.on("mouseout", cyberburnHoverEffects);
 	otherGraphic.on("mouseover", otherHoverEffects);
 	otherGraphic.on("mouseout", otherHoverEffects);
+	function sunHoverEffects() {
+		sunInfo.visible = !sunInfo.visible;
+		sunOrbitControl.hovering = !sunOrbitControl.hovering;
+	}
 	function plutoHoverEffects() {
 		plutoInfo.visible = !plutoInfo.visible;
 		plutoOrbitControl.hovering = !plutoOrbitControl.hovering;
