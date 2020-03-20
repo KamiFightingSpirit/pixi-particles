@@ -37,6 +37,8 @@ TO DO:
 34. Add in contact me icons in navbar
 
 NICE TO HAVES:
+GOOD: Add in additional hover effects for planets (highlighting, etc)
+GOOD: Add dynamic starry background
 1. Make everything resize on screen resize
 2. Add a text animation effect on planets 
 3. Make the resize happen when you drop down the nav
