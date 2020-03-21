@@ -35,6 +35,7 @@ TO DO:
 32. Properly adjust the wordWrapWidth on info boxes
 33. Cleanup the event listeners section DRY CODE
 34. Add in contact me icons in navbar
+35. look to see if isometry plane is necessary of if everything should be inside of the planetContainer instead.
 
 NICE TO HAVES:
 GOOD: Add in additional hover effects for planets (highlighting, etc)
@@ -47,6 +48,7 @@ GOOD: Add dynamic starry background
 6. Make a planet texture move backwards without glitching
 7. Make orbit lines look better in terms of zindex (not sure...)
 8. Maybe work on the random function for the planets initial positioning... have some sort of a guaranteed space between them
+9. Create a random shooting star effect
 */
 
 PIXI.utils.skipHello(); // remove pixi message in console
@@ -66,8 +68,9 @@ var rendererOptions = {
 	antialias: true
 };
 
-let _ = undefined;
+let _ = void 0;
 const app = new PIXI.Application(rendererOptions);
+app.stage.sortableChildren = true;
 
 const planetContainer = new PIXI.Container();
 planetContainer.scale.y = 0.2;
@@ -75,7 +78,7 @@ planetContainer.scale.x = 0.5;
 planetContainer.position.set(app.screen.width / 2, app.screen.height / 2);
 app.stage.addChild(planetContainer);
 
-//Is this actually necessary? Why don't I just have a separate
+//Is this actually necessary? Why don't I just have everything in the planet container instead?
 const isometryPlane = new PIXI.Graphics();
 isometryPlane.sortableChildren = true;
 planetContainer.addChild(isometryPlane);
@@ -94,7 +97,13 @@ loader
 	.add("./assets/sunShrunk.jpg") //sun
 	.add("./assets/venusbump.jpg")
 	.add("./assets/venusmap.jpg")
-
+	.add("./assets/bgassets/Bubbles99.png")
+	.add("./assets/bgassets/CartoonSmoke.png")
+	.add("./assets/bgassets/HardRain.png")
+	.add("./assets/bgassets/particlefromeditor.png")
+	.add("./assets/bgassets/smokeparticle.png")
+	.add("./assets/bgassets/snow100.png")
+	.add("./assets/bgassets/Sparks.png")
 	.load(setup);
 function setup() {
 	//Cinzel|Noto+Serif|Titilliu
@@ -148,7 +157,6 @@ function setup() {
 	sunText.style.fontSize = 50;
 	sunText.style.align = "center";
 	sunInfo.addChild(sunText);
-	console.log(sunInfo.height, sunText.width);
 
 	let plutoTexture =
 		PIXI.Loader.shared.resources["./assets/plutomap1k.jpg"].texture;
@@ -247,8 +255,6 @@ function setup() {
 	cyberburnText.position.set(30, 30); //moves text within the box
 	cyberburnInfo.addChild(cyberburnText);
 
-	/* START OF NEW PLANET */
-
 	let otherTexture =
 		PIXI.Loader.shared.resources["./assets/jupiter1k.jpg"].texture;
 	otherTexture.frame = new PIXI.Rectangle(0, 0, 900, 450); //Texture.frame (x, y, width, height)
@@ -281,15 +287,90 @@ function setup() {
 	otherInfo.addChild(otherText);
 
 	//ADDING IN A DYNAMIC BACKGROUND
-	let starContainer = new PIXI.Container();
-	let starTexture = new PIXI.Graphics();
-	starTexture
-		.lineStyle(1, 0xc0c0c0, 0.8, 0)
-		.beginFill(0xc0c0c0, 0.8)
-		.drawStar(0, 0, 5, 2, 1)
-		.endFill();
-	let starSprite = new PIXI.Sprite();
-	starSprite.anchor.set(0.5, 0.5).beginTextureFill(starTexture);
+	/* 
+	List of Assets Loaded for BG
+	.add("./assets/bgassets/Bubbles99.png")
+	.add("./assets/bgassets/CartoonSmoke.png")
+	.add("./assets/bgassets/HardRain.png")
+	.add("./assets/bgassets/particlefromeditor.png")
+	.add("./assets/bgassets/smokeparticle.png")
+	.add("./assets/bgassets/snow100.png")
+	.add("./assets/bgassets/Sparks.png")
+	*/
+	const starContainer = new PIXI.Container();
+
+	starContainer.position.set(0, 0);
+	starContainer.zIndex = -1;
+	app.stage.addChild(starContainer);
+
+	let starTexture =
+		PIXI.Loader.shared.resources["./assets/bgassets/particlefromeditor.png"]
+			.texture;
+	//randomly add stars via the ticker with a set kill on them
+	let starSprites = [];
+	addStarSprites();
+
+	function addStarSprites() {
+		for (let i = 0; i < 1000; i++) {
+			let weightedAlpha = randomAlpha();
+			let starSprite = new PIXI.Sprite(starTexture);
+			let x = Math.random() * app.renderer.screen.width;
+			let y = Math.random() * app.renderer.screen.height;
+			let randScale = Math.random() / 10;
+			starSprite.setTransform(x, y, randScale, randScale);
+			starSprite.alpha = Math.random();
+			//RETURN TO THIS IN ORDER TO GET A SECONDARY EFFECT OF BLINKING STARS
+			starSprite.isBlinking = true;
+			starSprite.blink = function(star) {
+				this.isBlinking = true;
+				star.setTransform(_, _, 0.2, 0.2);
+				console.log("hello");
+				setTimeout(function() {
+					this.setTransform(x, y, 0.05, 0.05);
+					this.isBlinking = false;
+				}, 2000);
+			};
+			starContainer.addChild(starSprite);
+			starSprites.push(starSprite);
+		}
+	}
+
+	let suicideStarContainer = new PIXI.Container();
+	starContainer.addChild(suicideStarContainer);
+	let suicideStars = suicideStarContainer.children;
+	console.log(suicideStars); //references the array
+	function createSuicideStar() {
+		if (Math.random() > 0.4) {
+			let suicideStar = new PIXI.Sprite(starTexture);
+			let randX = Math.random() * app.renderer.screen.width;
+			let randY = Math.random() * app.renderer.screen.height;
+			let randScale = Math.random() / 6;
+			let randAlpha = Math.floor(Math.random() * (10 - 4) + 4) / 10;
+			suicideStar.setTransform(randX, randY, randScale, randScale);
+			suicideStar.anchor.set(0.5);
+			suicideStar.alpha = randAlpha;
+			suicideStar.scaleMax = false;
+			suicideStar.scaler = 0; //initialize at zero but can create a random min/max for this so variability isn't lost (will also change the rate of blinking)
+			suicideStarContainer.addChild(suicideStar);
+			//star kills itself after 3 secs
+			setTimeout(function() {
+				suicideStar.destroy();
+			}, 4000);
+		}
+	}
+	//can use this idea for weighting initial alpha in order to get depth in stars (or anything that I dont want to appear uniform)
+	let staticWeight = 1.2;
+	function randomAlpha() {
+		let random = Math.random();
+		random = random <= 1.2 ? "" : random * 1.2;
+		return random;
+	}
+
+	//also test writing this instead of star
+	function blinkTest(star) {
+		let randomNum = Math.random();
+		star.isBlinking ? _ : randomNum >= 0.999 ? star.blink() : "";
+	}
 
 	//END OF ADDING IN DYNAMIC BACKGROUND
 
@@ -362,9 +443,58 @@ function setup() {
 		isometryPlane.drawCircle(0, 0, planet.orbitRadius);
 	});
 
+	function blinkStars(suicideStars) {
+		suicideStars.map(suicideStar => {
+			// console.log(suicideStar.scaleMax);
+			if (suicideStar.scale.x < 0.1 && suicideStar.scaleMax === false) {
+				suicideStar.scaler += 0.0013;
+
+				suicideStar.scale = new PIXI.Point(
+					suicideStar.scaler,
+					suicideStar.scaler
+				);
+				if (suicideStar.scale.x > 0.1) {
+					suicideStar.scaleMax = true;
+				}
+			} else {
+				suicideStar.scaler -= 0.0013;
+				suicideStar.scale = new PIXI.Point(
+					suicideStar.scaler,
+					suicideStar.scaler
+				);
+				if (suicideStar.scale.x < 0.05) {
+					suicideStar.scaleMax = false;
+				}
+			}
+		});
+	}
+
 	app.ticker.add(delta => {
 		textureTicker += 0.7;
+		createSuicideStar();
+		// blinkStars(suicideStars);
 
+		// if (starTest.scale.x < 0.1 && scaleMax === false) {
+		// 	starTestScale += 0.0013;
+		// 	starTest.scale = new PIXI.Point(starTestScale, starTestScale);
+		// 	if (starTest.scale.x > 0.1) {
+		// 		scaleMax = true;
+		// 	}
+		// } else {
+		// 	starTestScale -= 0.0013;
+		// 	starTest.scale = new PIXI.Point(starTestScale, starTestScale);
+		// 	if (starTest.scale.x < 0.05) {
+		// 		scaleMax = false;
+		// 	}
+		// }
+
+		starSprites.map(star => {
+			blinkTest(star);
+		});
+		starContainer.position.set(
+			Math.cos(textureTicker / 40),
+			Math.sin(textureTicker / 20)
+		);
 		//Controls the positioning and texture scrolling of all planets
 		planetOrbitControlArr.map(planet => {
 			//texture scrolling
