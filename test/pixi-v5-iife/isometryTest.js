@@ -286,94 +286,6 @@ function setup() {
 	otherText.position.set(25, 35);
 	otherInfo.addChild(otherText);
 
-	//ADDING IN A DYNAMIC BACKGROUND
-	/* 
-	List of Assets Loaded for BG
-	.add("./assets/bgassets/Bubbles99.png")
-	.add("./assets/bgassets/CartoonSmoke.png")
-	.add("./assets/bgassets/HardRain.png")
-	.add("./assets/bgassets/particlefromeditor.png")
-	.add("./assets/bgassets/smokeparticle.png")
-	.add("./assets/bgassets/snow100.png")
-	.add("./assets/bgassets/Sparks.png")
-	*/
-	const starContainer = new PIXI.Container();
-
-	starContainer.position.set(0, 0);
-	starContainer.zIndex = -1;
-	app.stage.addChild(starContainer);
-
-	let starTexture =
-		PIXI.Loader.shared.resources["./assets/bgassets/particlefromeditor.png"]
-			.texture;
-	//randomly add stars via the ticker with a set kill on them
-	let starSprites = [];
-	addStarSprites();
-
-	function addStarSprites() {
-		for (let i = 0; i < 1000; i++) {
-			let weightedAlpha = randomAlpha();
-			let starSprite = new PIXI.Sprite(starTexture);
-			let x = Math.random() * app.renderer.screen.width;
-			let y = Math.random() * app.renderer.screen.height;
-			let randScale = Math.random() / 10;
-			starSprite.setTransform(x, y, randScale, randScale);
-			starSprite.alpha = Math.random();
-			//RETURN TO THIS IN ORDER TO GET A SECONDARY EFFECT OF BLINKING STARS
-			starSprite.isBlinking = true;
-			starSprite.blink = function(star) {
-				this.isBlinking = true;
-				star.setTransform(_, _, 0.2, 0.2);
-				console.log("hello");
-				setTimeout(function() {
-					this.setTransform(x, y, 0.05, 0.05);
-					this.isBlinking = false;
-				}, 2000);
-			};
-			starContainer.addChild(starSprite);
-			starSprites.push(starSprite);
-		}
-	}
-
-	let suicideStarContainer = new PIXI.Container();
-	starContainer.addChild(suicideStarContainer);
-	let suicideStars = suicideStarContainer.children;
-	console.log(suicideStars); //references the array
-	function createSuicideStar() {
-		if (Math.random() > 0.4) {
-			let suicideStar = new PIXI.Sprite(starTexture);
-			let randX = Math.random() * app.renderer.screen.width;
-			let randY = Math.random() * app.renderer.screen.height;
-			let randScale = Math.random() / 6;
-			let randAlpha = Math.floor(Math.random() * (10 - 4) + 4) / 10;
-			suicideStar.setTransform(randX, randY, randScale, randScale);
-			suicideStar.anchor.set(0.5);
-			suicideStar.alpha = randAlpha;
-			suicideStar.scaleMax = false;
-			suicideStar.scaler = 0; //initialize at zero but can create a random min/max for this so variability isn't lost (will also change the rate of blinking)
-			suicideStarContainer.addChild(suicideStar);
-			//star kills itself after 3 secs
-			setTimeout(function() {
-				suicideStar.destroy();
-			}, 4000);
-		}
-	}
-	//can use this idea for weighting initial alpha in order to get depth in stars (or anything that I dont want to appear uniform)
-	let staticWeight = 1.2;
-	function randomAlpha() {
-		let random = Math.random();
-		random = random <= 1.2 ? "" : random * 1.2;
-		return random;
-	}
-
-	//also test writing this instead of star
-	function blinkTest(star) {
-		let randomNum = Math.random();
-		star.isBlinking ? _ : randomNum >= 0.999 ? star.blink() : "";
-	}
-
-	//END OF ADDING IN DYNAMIC BACKGROUND
-
 	let textureTicker = 0;
 	let planetSpeed = 0.015;
 
@@ -443,11 +355,99 @@ function setup() {
 		isometryPlane.drawCircle(0, 0, planet.orbitRadius);
 	});
 
+	//ADDING IN A DYNAMIC BACKGROUND
+	/* 
+	List of Assets Loaded for BG
+	.add("./assets/bgassets/Bubbles99.png")
+	.add("./assets/bgassets/CartoonSmoke.png")
+	.add("./assets/bgassets/HardRain.png")
+	.add("./assets/bgassets/particlefromeditor.png")
+	.add("./assets/bgassets/smokeparticle.png")
+	.add("./assets/bgassets/snow100.png")
+	.add("./assets/bgassets/Sparks.png")
+	*/
+	//Create the container to hold all stars
+	const starContainer = new PIXI.Container();
+	let starsArr = starContainer.children;
+	starContainer.position.set(0, 0);
+	starContainer.zIndex = -1;
+	app.stage.addChild(starContainer);
+
+	let starTexture =
+		PIXI.Loader.shared.resources["./assets/bgassets/particlefromeditor.png"]
+			.texture;
+	//randomly add stars via the ticker with a set kill on them
+	addStarSprites();
+
+	function addStarSprites() {
+		for (let i = 0; i < 888; i++) {
+			// let weightedAlpha = randomAlpha();
+			let starSprite = new PIXI.Sprite(starTexture);
+			let x = Math.random() * app.renderer.screen.width;
+			let y = Math.random() * app.renderer.screen.height;
+			let randScale = Math.random() / 10;
+			starSprite.setTransform(x, y, randScale, randScale);
+			starSprite.anchor.set(0.5);
+			starSprite.alpha = Math.random();
+			starSprite.scaleMax = false;
+			starSprite.scaler = 0; //initialize at zero but can create a random min/max for this so variability isn't lost (will also change the rate of blinking)
+			//RETURN TO THIS IN ORDER TO GET A SECONDARY EFFECT OF BLINKING STARS
+			// starSprite.isBlinking = true;
+			// starSprite.blink = function(star) {
+			// 	this.isBlinking = true;
+			// 	star.setTransform(_, _, 0.2, 0.2);
+			// 	console.log("hello");
+			// 	setTimeout(function() {
+			// 		this.setTransform(x, y, 0.05, 0.05);
+			// 		this.isBlinking = false;
+			// 	}, 2000);
+			// };
+			starContainer.addChild(starSprite);
+		}
+		// setTimeout(blinkStars(starsArr), 100);
+	}
+
+	//also test writing this instead of star
+	// function blinkTest(star) {
+	// 	let randomNum = Math.random();
+	// 	star.isBlinking ? _ : randomNum >= 0.999 ? star.blink() : "";
+	// }
+
+	//create a bunch of stars that that flicker in and out of existence
+	let suicideStarContainer = new PIXI.Container();
+	starContainer.addChild(suicideStarContainer);
+	function createSuicideStar() {
+		if (Math.random() > 0.6) {
+			let suicideStar = new PIXI.Sprite(starTexture);
+			let randX = Math.random() * app.renderer.screen.width;
+			let randY = Math.random() * app.renderer.screen.height;
+			let randScale = Math.random() / 6;
+			let randAlpha = Math.floor(Math.random() * (10 - 4) + 4) / 10;
+			suicideStar.setTransform(randX, randY, randScale, randScale);
+			suicideStar.anchor.set(0.5);
+			suicideStar.alpha = randAlpha;
+			suicideStar.scaleMax = false;
+			suicideStar.scaler = 0; //initialize at zero but can create a random min/max for this so variability isn't lost (will also change the rate of blinking)
+			suicideStar.fadeOut = function() {
+				while (suicideStar.alpha > 0) {
+					suicideStar.alpha -= 0.01;
+				}
+				suicideStar.destroy();
+			};
+			suicideStarContainer.addChild(suicideStar);
+			//star kills itself after 3 secs
+			// setTimeout(function() {
+			// 	suicideStar.destroy();
+			// }, 2000);
+			setTimeout(suicideStar.fadeOut(), 2000);
+		}
+	}
+
 	function blinkStars(suicideStars) {
 		suicideStars.map(suicideStar => {
 			// console.log(suicideStar.scaleMax);
-			if (suicideStar.scale.x < 0.1 && suicideStar.scaleMax === false) {
-				suicideStar.scaler += 0.0013;
+			if (suicideStar.scale.x < 1 && suicideStar.scaleMax === false) {
+				suicideStar.scaler += 0.0033;
 
 				suicideStar.scale = new PIXI.Point(
 					suicideStar.scaler,
@@ -457,7 +457,7 @@ function setup() {
 					suicideStar.scaleMax = true;
 				}
 			} else {
-				suicideStar.scaler -= 0.0013;
+				suicideStar.scaler -= 0.0033;
 				suicideStar.scale = new PIXI.Point(
 					suicideStar.scaler,
 					suicideStar.scaler
@@ -468,6 +468,8 @@ function setup() {
 			}
 		});
 	}
+
+	//END OF ADDING IN DYNAMIC BACKGROUND
 
 	app.ticker.add(delta => {
 		textureTicker += 0.7;
@@ -488,13 +490,10 @@ function setup() {
 		// 	}
 		// }
 
-		starSprites.map(star => {
-			blinkTest(star);
-		});
-		starContainer.position.set(
-			Math.cos(textureTicker / 40),
-			Math.sin(textureTicker / 20)
-		);
+		// starSprites.map(star => {
+		// 	blinkTest(star);
+		// });
+
 		//Controls the positioning and texture scrolling of all planets
 		planetOrbitControlArr.map(planet => {
 			//texture scrolling
