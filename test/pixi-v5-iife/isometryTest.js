@@ -26,7 +26,7 @@ COMPLETED:
 38. Make the stars have a maxScale based off their random initial scale (note: rejected - max is randomized via initial anyays) DONE 03/22
 39. Try out having multiple images for stars to see if it makes a significant impact? Might just be a nice to have DONE 03/22
 40. GOOD: Add dynamic starry background DONE 03/22
-
+41. Fade the suicide stars out DONE 03/22
 
 TO DO:
 11. Create a create planet function  -- wait until React import
@@ -42,6 +42,7 @@ TO DO:
 34. Add in contact me icons in navbar
 
 
+
 NICE TO HAVES:
 GOOD: Add in additional hover effects for planets (highlighting, etc)
 1. Make everything resize on screen resize
@@ -53,7 +54,8 @@ GOOD: Add in additional hover effects for planets (highlighting, etc)
 7. Make orbit lines look better in terms of zindex (not sure...)
 8. Maybe work on the random function for the planets initial positioning... have some sort of a guaranteed space between them
 9. Create a random shooting star effect
-10. Fade the suicide stars out UPDATEED TO NICE TO HAVE 03/22
+
+11. Get rid of stars that spawn on orbital lines
 */
 
 PIXI.utils.skipHello(); // remove pixi message in console
@@ -434,21 +436,23 @@ function setup() {
 	function addStarSprites() {
 		for (let i = 0; i < 777; i++) {
 			let starSprite = new PIXI.Sprite(starTexture);
-			//place star randomly on screen
-			let x = Math.random() * app.renderer.screen.width;
-			let y = Math.random() * app.renderer.screen.height;
+			//Place star randomly on screen
+			let randX = Math.random() * app.renderer.screen.width;
+			let randY = Math.random() * app.renderer.screen.height;
+			//Randomize alpha between 0.3 and 1 to create depth
+			let randAlpha = Math.floor(Math.random() * (10 - 3) + 3) / 10;
 			starSprite.anchor.set(0.5);
-			//randomize brightness to add depth to the background
-			starSprite.alpha = Math.random();
-			//randomize star's starting size
-			starSprite.currentScale = Math.random() / 8;
-			//set the max size the star will become
+			//Randomize brightness to add depth to the background
+			starSprite.alpha = randAlpha;
+			//Randomize star's starting size
+			starSprite.currentScale = Math.random() / 6.5;
+			//Set the max size the star will become
 			starSprite.maxScale = starSprite.currentScale + 0.06;
-			//make half of the stars expand to start and half shrink
+			//Make half of the stars expand to start and half shrink
 			starSprite.yoyo = starsArr.length % 2 === 0 ? false : true;
 			starSprite.setTransform(
-				x,
-				y,
+				randX,
+				randY,
 				starSprite.currentScale,
 				starSprite.currentScale
 			);
@@ -479,6 +483,7 @@ function setup() {
 
 	//create a bunch of stars that that flicker in and out of existence
 	let suicideStarContainer = new PIXI.Container();
+	let suicideStarsArr = suicideStarContainer.children;
 	suicideStarContainer.zIndex = -1;
 	app.stage.addChild(suicideStarContainer);
 	function createSuicideStar() {
@@ -486,7 +491,7 @@ function setup() {
 			let suicideStar = new PIXI.Sprite(starTexture);
 			let randX = Math.random() * app.renderer.screen.width;
 			let randY = Math.random() * app.renderer.screen.height;
-			let randAlpha = Math.floor(Math.random() * (10 - 4) + 4) / 10; //LOL double check this shit, is this really necessary? I may prefer weighted random over floored
+			let randAlpha = Math.floor(Math.random() * (10 - 6) + 6) / 10; //LOL double check this shit, is this really necessary? I may prefer weighted random over floored
 			suicideStar.currentScale = Math.random() / 6;
 			// suicideStar.maxScale = suicideStar.currentScale + 0.5;
 			suicideStar.alpha = randAlpha;
@@ -498,18 +503,10 @@ function setup() {
 				suicideStar.currentScale,
 				suicideStar.currentScale
 			);
-			// suicideStar.fadeOut = function() {
-			// 	// while (suicideStar.alpha > 0) {
-			// 	// 	suicideStar.alpha -= 0.01;
-			// 	// }
-			// 	suicideStar.destroy();
-			// };
+			suicideStar.fadeAway = function() {
+				this.alpha > 0.05 ? (this.alpha -= 0.005) : this.destroy();
+			};
 			suicideStarContainer.addChild(suicideStar);
-			// star kills itself after 3 secs
-			setTimeout(function() {
-				suicideStar.destroy();
-			}, 2000);
-			// setTimeout(suicideStar.fadeOut(), 2000);
 		}
 	}
 
@@ -524,10 +521,14 @@ function setup() {
 		starTicker += 1;
 		createSuicideStar();
 		blinkStars(starsArr, starTicker);
+		suicideStarsArr.map(suicideStar => {
+			suicideStar.fadeAway();
+		});
 		animatePlanetTextures(planetOrbitControlArr, delta);
 	});
 }
-
+//instead of redrawing the stars, try to resize the starContainer to the size of the screen -- If I"m doing this, then maybe just redraw the whole thing
+// minus the navbar
 // Cleanly center emitter upon window resize
 window.onresize = function() {
 	//resize the canvas to the size of the window
