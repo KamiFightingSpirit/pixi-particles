@@ -41,7 +41,6 @@ TO DO:
 34. Add in contact me icons in navbar
 35. look to see if isometry plane is necessary of if everything should be inside of the planetContainer instead.
 37. Fade the suicide stars out
-
 39. Try out having multiple images for stars to see if it makes a significant impact? Might just be a nice to have
 
 
@@ -60,18 +59,14 @@ GOOD: Add in additional hover effects for planets (highlighting, etc)
 
 PIXI.utils.skipHello(); // remove pixi message in console
 
-let mainScreenState = {
-	plutoHover: false
-};
-
 var canvas = document.getElementById("stage");
 var rendererOptions = {
 	width: window.innerWidth,
 	height: window.innerHeight,
 	view: canvas,
 	resolution: window.devicePixelRatio,
-	autoDensity: true,
 	backgroundColor: 0x191919,
+	autoDensity: true,
 	antialias: true
 };
 
@@ -83,11 +78,12 @@ const planetContainer = new PIXI.Container();
 planetContainer.scale.y = 0.2;
 planetContainer.scale.x = 0.5;
 planetContainer.position.set(app.screen.width / 2, app.screen.height / 2);
+planetContainer.sortableChildren = true;
 app.stage.addChild(planetContainer);
 
 //Is this actually necessary? Why don't I just have everything in the planet container instead?
 const isometryPlane = new PIXI.Graphics();
-isometryPlane.sortableChildren = true;
+isometryPlane.zIndex = -10000;
 planetContainer.addChild(isometryPlane);
 
 //create the loader
@@ -112,6 +108,7 @@ loader
 	.add("./assets/bgassets/snow100.png")
 	.add("./assets/bgassets/Sparks.png")
 	.load(setup);
+
 function setup() {
 	//Cinzel|Noto+Serif|Titilliu
 	let planetTextOptions = {
@@ -135,7 +132,7 @@ function setup() {
 		.endFill()
 		.setTransform(_, _, _, 2.1, _, _); //setTransform(x, y, x-scale,y-scale,xkew,yskew )
 	sunGraphic.interactive = true;
-	isometryPlane.addChild(sunGraphic);
+	planetContainer.addChild(sunGraphic);
 	//add a background sun to create a double layered corona for the sun
 	let backgroundSun = new PIXI.Graphics();
 	backgroundSun
@@ -144,7 +141,7 @@ function setup() {
 		.setTransform(_, _, _, 2.1, _, _).filters = [
 		new PIXI.filters.BlurFilter(4)
 	];
-	isometryPlane.addChild(backgroundSun);
+	planetContainer.addChild(backgroundSun);
 
 	//create an infographic for on hover
 	let sunInfo = new PIXI.Graphics()
@@ -154,7 +151,7 @@ function setup() {
 		.drawRoundedRect(0, 0, 400, 200, 50);
 	sunInfo.zIndex = 10000;
 	sunInfo.visible = false;
-	isometryPlane.addChild(sunInfo);
+	planetContainer.addChild(sunInfo);
 
 	let sunText = new PIXI.Text("About\nThis\nSite", planetTextOptions);
 	sunText.position.set(
@@ -175,7 +172,7 @@ function setup() {
 		.drawCircle(0, 0, 60)
 		.endFill();
 	plutoGraphic.interactive = true;
-	isometryPlane.addChild(plutoGraphic);
+	planetContainer.addChild(plutoGraphic);
 
 	//create an infographic for on hover
 	window.plutoInfo = new PIXI.Graphics()
@@ -185,7 +182,7 @@ function setup() {
 		.drawRoundedRect(0, 0, 400, 200, 50);
 	plutoInfo.zIndex = 10000;
 	plutoInfo.visible = false;
-	isometryPlane.addChild(plutoInfo);
+	planetContainer.addChild(plutoInfo);
 
 	let plutoText = new PIXI.Text(
 		"Name: BlackRock \nTitle: Analyst \nYears: 2015-2017",
@@ -204,7 +201,7 @@ function setup() {
 		.drawCircle(0, 0, 60)
 		.endFill();
 	marsGraphic.interactive = true;
-	// isometryPlane.addChild(marsGraphic);
+	// planetContainer.addChild(marsGraphic);
 	let marsSettings = {
 		lineStyleOptions: {
 			width: 200,
@@ -221,7 +218,7 @@ function setup() {
 		.drawRoundedRect(0, 0, 400, 200, 50);
 	marsInfo.zIndex = 10000;
 	marsInfo.visible = false;
-	isometryPlane.addChild(marsInfo);
+	planetContainer.addChild(marsInfo);
 	planetConstructor(marsGraphic, marsTexture, marsSettings);
 
 	let marsText = new PIXI.Text(
@@ -242,7 +239,7 @@ function setup() {
 		.drawCircle(0, 0, 90)
 		.endFill();
 	cyberburnGraphic.interactive = true;
-	isometryPlane.addChild(cyberburnGraphic);
+	planetContainer.addChild(cyberburnGraphic);
 
 	//create an infographic for on hover
 	let cyberburnInfo = new PIXI.Graphics()
@@ -252,7 +249,7 @@ function setup() {
 		.drawRoundedRect(0, 0, 400, 200, 50);
 	cyberburnInfo.zIndex = 10000;
 	cyberburnInfo.visible = false;
-	isometryPlane.addChild(cyberburnInfo);
+	planetContainer.addChild(cyberburnInfo);
 
 	let cyberburnText = new PIXI.Text(
 		"Name: Cyberburn \nTitle: Owner and CEO \nYears: 2009-2015",
@@ -269,11 +266,11 @@ function setup() {
 	let otherGraphic = new PIXI.Graphics()
 		.lineStyle(12, 0xf2ddbb, 0.25, 0.5) //add atmostphere
 		.beginTextureFill(otherTexture)
-		.setTransform(_, _, _, 2, _, _) //setTransform(x, y, x-scale,y-scale,xkew,yskew )
+		.setTransform(_, _, _, 2, _, _)
 		.drawCircle(0, 0, 90)
 		.endFill();
 	otherGraphic.interactive = true;
-	isometryPlane.addChild(otherGraphic);
+	planetContainer.addChild(otherGraphic);
 
 	//create an infographic for on hover
 	let otherInfo = new PIXI.Graphics()
@@ -283,7 +280,7 @@ function setup() {
 		.drawRoundedRect(0, 0, 400, 200, 50);
 	otherInfo.zIndex = 10000;
 	otherInfo.visible = false;
-	isometryPlane.addChild(otherInfo);
+	planetContainer.addChild(otherInfo);
 
 	let otherText = new PIXI.Text(
 		"Tech and Programming Experience\nYears: 2009-2020",
@@ -353,23 +350,76 @@ function setup() {
 		otherOrbitControl
 	];
 
+	//Add event listeners
+	sunGraphic.on("mouseover", sunHoverEffects);
+	sunGraphic.on("mouseout", sunHoverEffects);
+	plutoGraphic.on("mouseover", plutoHoverEffects);
+	plutoGraphic.on("mouseout", plutoHoverEffects);
+	marsGraphic.on("mouseover", marsHoverEffects);
+	marsGraphic.on("mouseout", marsHoverEffects);
+	cyberburnGraphic.on("mouseover", cyberburnHoverEffects);
+	cyberburnGraphic.on("mouseout", cyberburnHoverEffects);
+	otherGraphic.on("mouseover", otherHoverEffects);
+	otherGraphic.on("mouseout", otherHoverEffects);
+	function sunHoverEffects() {
+		sunInfo.visible = !sunInfo.visible;
+		sunOrbitControl.hovering = !sunOrbitControl.hovering;
+	}
+	function plutoHoverEffects() {
+		plutoInfo.visible = !plutoInfo.visible;
+		plutoOrbitControl.hovering = !plutoOrbitControl.hovering;
+	}
+	function marsHoverEffects() {
+		marsInfo.visible = !marsInfo.visible;
+		marsOrbitControl.hovering = !marsOrbitControl.hovering;
+	}
+	function cyberburnHoverEffects() {
+		cyberburnInfo.visible = !cyberburnInfo.visible;
+		cyberburnOrbitControl.hovering = !cyberburnOrbitControl.hovering;
+	}
+	function otherHoverEffects() {
+		otherInfo.visible = !otherInfo.visible;
+		otherOrbitControl.hovering = !otherOrbitControl.hovering;
+	}
+
+	function animatePlanetTextures(planetOrbitControlArr, delta) {
+		//Controls the positioning and texture scrolling of all planets
+		planetOrbitControlArr.map(planet => {
+			//texture scrolling
+			planet.texture.frame.width =
+				200 + textureTicker * planet.textureTickerFactor;
+			planet.texture.updateUvs();
+			planet.graphic.geometry.invalidate();
+			//positioning of planet and infoText
+			if (planet.orbitRadius) {
+				if (!planet.hovering) {
+					planet.step += delta;
+					planet.graphic.position.set(
+						Math.cos(planet.step * planetSpeed * planet.speedFactor) *
+							planet.orbitRadius,
+						Math.sin(planet.step * planetSpeed * planet.speedFactor) *
+							planet.orbitRadius
+					);
+					planet.info.position.set(
+						Math.cos(planet.step * planetSpeed * planet.speedFactor) *
+							planet.orbitRadius,
+						Math.sin(planet.step * planetSpeed * planet.speedFactor) *
+							planet.orbitRadius
+					);
+				}
+			}
+			//Adjust the zIndex of planets based on their y-position
+			planet.graphic.zIndex = Math.floor(planet.graphic.position.y);
+		});
+	}
+
 	//Build Orbital Lines
 	isometryPlane.lineStyle(1.5, 0xffffff);
 	planetOrbitControlArr.map(planet => {
 		isometryPlane.drawCircle(0, 0, planet.orbitRadius);
 	});
 
-	//ADDING IN A DYNAMIC BACKGROUND
-	/* 
-	List of Assets Loaded for BG
-	.add("./assets/bgassets/Bubbles99.png")
-	.add("./assets/bgassets/CartoonSmoke.png")
-	.add("./assets/bgassets/HardRain.png")
-	.add("./assets/bgassets/particlefromeditor.png")
-	.add("./assets/bgassets/smokeparticle.png")
-	.add("./assets/bgassets/snow100.png")
-	.add("./assets/bgassets/Sparks.png")
-	*/
+	//ADD IN DYNAMIC BACKGROUND
 	//Create the container to hold all stars
 	const staticStarContainer = new PIXI.Container();
 	let starsArr = staticStarContainer.children;
@@ -379,10 +429,11 @@ function setup() {
 	let starTexture =
 		PIXI.Loader.shared.resources["./assets/bgassets/particlefromeditor.png"]
 			.texture;
+
 	addStarSprites();
 	//ADD STATIONARY STARS RANDOMLY THROUGHOUT THE CANVAS
 	function addStarSprites() {
-		for (let i = 0; i < 888; i++) {
+		for (let i = 0; i < 777; i++) {
 			let starSprite = new PIXI.Sprite(starTexture);
 			//place star randomly on screen
 			let x = Math.random() * app.renderer.screen.width;
@@ -406,9 +457,9 @@ function setup() {
 		}
 	}
 
-	function blinkStars(starsArr) {
-		blinkStarTicker += 1;
-		if (blinkStarTicker % 3 === 0) {
+	//Blinks the static stars
+	function blinkStars(starsArr, starTicker) {
+		if (starTicker % 3 === 0) {
 			starsArr.map(star => {
 				if (star.currentScale < star.maxScale && star.yoyo === false) {
 					star.currentScale += 0.0033;
@@ -429,6 +480,7 @@ function setup() {
 
 	//create a bunch of stars that that flicker in and out of existence
 	let suicideStarContainer = new PIXI.Container();
+	suicideStarContainer.zIndex = -1;
 	app.stage.addChild(suicideStarContainer);
 	function createSuicideStar() {
 		if (Math.random() > 0.6) {
@@ -462,77 +514,19 @@ function setup() {
 		}
 	}
 
-	//Create variables that are passed into the ticker
-	let blinkStarTicker = 0;
+	//Create variables that are passed into the animation function
+	let starTicker = 0;
 	let textureTicker = 0;
-	const planetSpeed = 0.015;
-	//END OF ADDING IN DYNAMIC BACKGROUND
+	const planetSpeed = 0.015; //can this be removed?
+
+	//Animate everything
 	app.ticker.add(delta => {
 		textureTicker += 0.7;
+		starTicker += 1;
 		createSuicideStar();
-		blinkStars(starsArr);
-
-		//Controls the positioning and texture scrolling of all planets
-		planetOrbitControlArr.map(planet => {
-			//texture scrolling
-			planet.texture.frame.width =
-				200 + textureTicker * planet.textureTickerFactor;
-			planet.texture.updateUvs();
-			planet.graphic.geometry.invalidate();
-			//positioning of planet and infoText
-			if (planet.orbitRadius) {
-				if (!planet.hovering) {
-					planet.step += delta;
-					planet.graphic.position.set(
-						Math.cos(planet.step * planetSpeed * planet.speedFactor) *
-							planet.orbitRadius,
-						Math.sin(planet.step * planetSpeed * planet.speedFactor) *
-							planet.orbitRadius
-					);
-					planet.info.position.set(
-						Math.cos(planet.step * planetSpeed * planet.speedFactor) *
-							planet.orbitRadius,
-						Math.sin(planet.step * planetSpeed * planet.speedFactor) *
-							planet.orbitRadius
-					);
-				}
-			}
-			//Adjust the zIndex of planets based on their y-position
-			planet.graphic.zIndex = Math.floor(planet.graphic.position.y);
-		});
+		blinkStars(starsArr, starTicker);
+		animatePlanetTextures(planetOrbitControlArr, delta);
 	});
-
-	//Add event listeners
-	sunGraphic.on("mouseover", sunHoverEffects);
-	sunGraphic.on("mouseout", sunHoverEffects);
-	plutoGraphic.on("mouseover", plutoHoverEffects);
-	plutoGraphic.on("mouseout", plutoHoverEffects);
-	marsGraphic.on("mouseover", marsHoverEffects);
-	marsGraphic.on("mouseout", marsHoverEffects);
-	cyberburnGraphic.on("mouseover", cyberburnHoverEffects);
-	cyberburnGraphic.on("mouseout", cyberburnHoverEffects);
-	otherGraphic.on("mouseover", otherHoverEffects);
-	otherGraphic.on("mouseout", otherHoverEffects);
-	function sunHoverEffects() {
-		sunInfo.visible = !sunInfo.visible;
-		sunOrbitControl.hovering = !sunOrbitControl.hovering;
-	}
-	function plutoHoverEffects() {
-		plutoInfo.visible = !plutoInfo.visible;
-		plutoOrbitControl.hovering = !plutoOrbitControl.hovering;
-	}
-	function marsHoverEffects() {
-		marsInfo.visible = !marsInfo.visible;
-		marsOrbitControl.hovering = !marsOrbitControl.hovering;
-	}
-	function cyberburnHoverEffects() {
-		cyberburnInfo.visible = !cyberburnInfo.visible;
-		cyberburnOrbitControl.hovering = !cyberburnOrbitControl.hovering;
-	}
-	function otherHoverEffects() {
-		otherInfo.visible = !otherInfo.visible;
-		otherOrbitControl.hovering = !otherOrbitControl.hovering;
-	}
 }
 
 // Cleanly center emitter upon window resize
@@ -567,7 +561,7 @@ function planetConstructor(planet, planetTexture, planetSettings) {
 	// )
 	// .drawCircle(planetSettings.drawCircleOptions);
 	// planet.interactive = planetSettings.interactiveSetting;
-	isometryPlane.addChild(planet);
+	planetContainer.addChild(planet);
 }
 // isometryPlane.drawRoundedRect(200, 200, i, i + 50, 100); //can maybe use this as framing for my window popup on planet hoves
 // isometryPlane.drawEllipse(0, 0, i, i + 30); //by extending y you can vary the height of a circle with this.
