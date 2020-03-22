@@ -21,27 +21,25 @@ COMPLETED:
 20. Set z-index of info boxes to always be highest DONE 03/20
 22. Solve the whole delta/step problem with DONE 03/16
 28. understand z-index and see if you can shrink the orbits. DONE 03/20
+35. look to see if isometry plane is necessary of if everything should be inside of the planetContainer instead. DONE 03/22
 36. Make the blinking of the stars have an easy speed control DONE 03/22
 38. Make the stars have a maxScale based off their random initial scale (note: rejected - max is randomized via initial anyays) DONE 03/22
+39. Try out having multiple images for stars to see if it makes a significant impact? Might just be a nice to have DONE 03/22
 40. GOOD: Add dynamic starry background DONE 03/22
 
 
-
 TO DO:
-11. Create a create planet function 
+11. Create a create planet function  -- wait until React import
 14. Add in the Relativity toolbar -- wait until React import
-15. Create a function that creates info boxes for planets 
+15. Create a function that creates info boxes for planets   -- wait until React import
 16. Begin work on individual page view
-26. Write in the navbar links
-27. Add the links to the hover effects.
+26. Write in the navbar links 
+27. Add the links to the hover effects. 
 30. Add in an animated background (LARGEST NICE TO HAVE BUT WILL USE EVERYWHERE)
 31. Get rid of the random 200 in texture ticker update
 32. Properly adjust the wordWrapWidth on info boxes
-33. Cleanup the event listeners section DRY CODE
+33. Cleanup the event listeners section DRY CODE  -- wait until React import
 34. Add in contact me icons in navbar
-35. look to see if isometry plane is necessary of if everything should be inside of the planetContainer instead.
-37. Fade the suicide stars out
-39. Try out having multiple images for stars to see if it makes a significant impact? Might just be a nice to have
 
 
 NICE TO HAVES:
@@ -55,6 +53,7 @@ GOOD: Add in additional hover effects for planets (highlighting, etc)
 7. Make orbit lines look better in terms of zindex (not sure...)
 8. Maybe work on the random function for the planets initial positioning... have some sort of a guaranteed space between them
 9. Create a random shooting star effect
+10. Fade the suicide stars out UPDATEED TO NICE TO HAVE 03/22
 */
 
 PIXI.utils.skipHello(); // remove pixi message in console
