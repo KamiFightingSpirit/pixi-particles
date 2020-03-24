@@ -1,4 +1,4 @@
-var imagePaths = ["docs/examples/images/particle.png"];
+var imagePaths = ["./assets/bgassets/particlefromeditor.png"];
 
 PIXI.utils.skipHello(); // remove pixi message in console
 
@@ -170,13 +170,6 @@ loader.load(function() {
 		art,
 		config
 	);
-	emitter.parent.pivot.set =
-		(emitter.parent.width / 2, emitter.parent.height / 2);
-
-	// Center all containers on the stage
-	enterText.parent.x = window.innerWidth / 2;
-	enterText.parent.y = window.innerHeight / 2;
-	emitter.updateOwnerPos(window.innerWidth / 2, window.innerHeight / 2);
 
 	// Start the update
 	update();
@@ -193,10 +186,8 @@ let enterTextHoverEffects = function() {
 	if (enterScreenState.clicked === false) {
 		//Creates burst effect
 		emitter.particlesPerWave = 500;
-
 		//Ties into the update function, a smaller number is slower
 		speedController = 0.0003;
-
 		//Editing the radius
 		emitter.spawnCircle = {
 			x: -2,
@@ -205,7 +196,6 @@ let enterTextHoverEffects = function() {
 			type: 2,
 			minRadius: 140
 		};
-
 		//Changes how long each particle survives
 		emitter.minLifetime = 0.6;
 		emitter.maxLifetime = 0.6;
@@ -360,6 +350,7 @@ spaceCowboy = function() {
 	spaceCowboyAnimation(sCowboyChildren, sCowboyFilter);
 };
 
+//REWRITE ALL OF THIS SHIT
 //Animates spaceCowboyText
 function spaceCowboyAnimation(sCowboyChildren, sCowboyFilter) {
 	//temp printout of a PIXI.Text

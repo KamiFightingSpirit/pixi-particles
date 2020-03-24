@@ -41,8 +41,6 @@ TO DO:
 33. Cleanup the event listeners section DRY CODE  -- wait until React import
 34. Add in contact me icons in navbar
 
-
-
 NICE TO HAVES:
 GOOD: Add in additional hover effects for planets (highlighting, etc)
 1. Make everything resize on screen resize
@@ -54,7 +52,6 @@ GOOD: Add in additional hover effects for planets (highlighting, etc)
 7. Make orbit lines look better in terms of zindex (not sure...)
 8. Maybe work on the random function for the planets initial positioning... have some sort of a guaranteed space between them
 9. Create a random shooting star effect
-
 11. Get rid of stars that spawn on orbital lines
 */
 
@@ -125,13 +122,14 @@ function setup() {
 
 	let sunTexture =
 		PIXI.Loader.shared.resources["./assets/sunShrunk.jpg"].texture;
-	sunTexture.frame = new PIXI.Rectangle(2, 0, 200, 100); //Texture.frame (x, y, width, height)
+	sunTexture.frame = new PIXI.Rectangle(2, 0, 200, 100);
 	let sunGraphic = new PIXI.Graphics()
-		.lineStyle(12, 0xcc9f4c, 0.15, 0.5) //add a semi-transparent corona lineStyle(width, color, alpha,alignment,native),
+		//add a semi-transparent corona
+		.lineStyle(12, 0xcc9f4c, 0.15, 0.5)
 		.beginTextureFill(sunTexture)
-		.drawCircle(0, 0, 125)
+		.drawCircle(0, 0, 135)
 		.endFill()
-		.setTransform(_, _, _, 2.1, _, _); //setTransform(x, y, x-scale,y-scale,xkew,yskew )
+		.setTransform(_, _, _, 2.1, _, _);
 	sunGraphic.interactive = true;
 	planetContainer.addChild(sunGraphic);
 	//add a background sun to create a double layered corona for the sun
@@ -268,7 +266,7 @@ function setup() {
 		.lineStyle(12, 0xf2ddbb, 0.25, 0.5) //add atmostphere
 		.beginTextureFill(otherTexture)
 		.setTransform(_, _, _, 2, _, _)
-		.drawCircle(0, 0, 90)
+		.drawCircle(0, 0, 120)
 		.endFill();
 	otherGraphic.interactive = true;
 	planetContainer.addChild(otherGraphic);
@@ -336,8 +334,8 @@ function setup() {
 		graphic: otherGraphic,
 		texture: otherTexture,
 		info: otherInfo,
-		orbitRadius: 900,
-		speedFactor: 0.5,
+		orbitRadius: 950,
+		speedFactor: 1,
 		textureTickerFactor: 4,
 		hovering: false,
 		step: Math.floor(Math.random() * Math.floor(8000))
