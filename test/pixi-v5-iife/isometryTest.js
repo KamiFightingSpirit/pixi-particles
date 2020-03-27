@@ -55,6 +55,8 @@ GOOD: Add in additional hover effects for planets (highlighting, etc)
 11. Get rid of stars that spawn on orbital lines
 */
 
+import hoverEffects from "./solarSystemHoverEffects.js";
+
 PIXI.utils.skipHello(); // remove pixi message in console
 
 var canvas = document.getElementById("stage");
@@ -98,13 +100,7 @@ loader
 	.add("./assets/sunShrunk.jpg") //sun
 	.add("./assets/venusbump.jpg")
 	.add("./assets/venusmap.jpg")
-	.add("./assets/bgassets/Bubbles99.png")
-	.add("./assets/bgassets/CartoonSmoke.png")
-	.add("./assets/bgassets/HardRain.png")
 	.add("./assets/bgassets/particlefromeditor.png")
-	.add("./assets/bgassets/smokeparticle.png")
-	.add("./assets/bgassets/snow100.png")
-	.add("./assets/bgassets/Sparks.png")
 	.load(setup);
 
 function setup() {
@@ -119,28 +115,6 @@ function setup() {
 		leading: 4,
 		resolution: 3
 	};
-
-	let sunTexture =
-		PIXI.Loader.shared.resources["./assets/sunShrunk.jpg"].texture;
-	sunTexture.frame = new PIXI.Rectangle(2, 0, 200, 100);
-	let sunGraphic = new PIXI.Graphics()
-		//add a semi-transparent corona
-		.lineStyle(12, 0xcc9f4c, 0.15, 0.5)
-		.beginTextureFill(sunTexture)
-		.drawCircle(0, 0, 135)
-		.endFill()
-		.setTransform(_, _, _, 2.1, _, _);
-	sunGraphic.interactive = true;
-	planetContainer.addChild(sunGraphic);
-	//add a background sun to create a double layered corona for the sun
-	let backgroundSun = new PIXI.Graphics();
-	backgroundSun
-		.lineStyle(30, 0xcc9f4c, 0.5, 0.5)
-		.drawCircle(0, 0, 127)
-		.setTransform(_, _, _, 2.1, _, _).filters = [
-		new PIXI.filters.BlurFilter(4)
-	];
-	planetContainer.addChild(backgroundSun);
 
 	//create an infographic for on hover
 	let sunInfo = new PIXI.Graphics()
@@ -161,20 +135,32 @@ function setup() {
 	sunText.style.align = "center";
 	sunInfo.addChild(sunText);
 
-	let plutoTexture =
-		PIXI.Loader.shared.resources["./assets/plutomap1k.jpg"].texture;
-	plutoTexture.frame = new PIXI.Rectangle(0, 0, 200, 250); //Texture.frame (x, y, width, height)
-	let plutoGraphic = new PIXI.Graphics()
-		.lineStyle(7, 0xc3b6aa, 0.25, 0.5) //add atmostphere
-		.beginTextureFill(plutoTexture)
-		.setTransform(_, _, _, 2, _, _) //setTransform(x, y, x-scale,y-scale,xkew,yskew )
-		.drawCircle(0, 0, 60)
-		.endFill();
-	plutoGraphic.interactive = true;
-	planetContainer.addChild(plutoGraphic);
+	let sunTexture =
+		PIXI.Loader.shared.resources["./assets/sunShrunk.jpg"].texture;
+	sunTexture.frame = new PIXI.Rectangle(2, 0, 200, 100);
+	let sunGraphic = new PIXI.Graphics()
+		//add a semi-transparent corona
+		.lineStyle(12, 0xcc9f4c, 0.15, 0.5)
+		.beginTextureFill(sunTexture)
+		.drawCircle(0, 0, 135)
+		.endFill()
+		.setTransform(_, _, _, 2.1, _, _);
+	sunGraphic.interactive = true;
+	sunGraphic.hovering = false;
+	sunGraphic.info = sunInfo;
+	planetContainer.addChild(sunGraphic);
+	//add a background sun to create a double layered corona for the sun
+	let backgroundSun = new PIXI.Graphics();
+	backgroundSun
+		.lineStyle(30, 0xcc9f4c, 0.5, 0.5)
+		.drawCircle(0, 0, 127)
+		.setTransform(_, _, _, 2.1, _, _).filters = [
+		new PIXI.filters.BlurFilter(4)
+	];
+	planetContainer.addChild(backgroundSun);
 
 	//create an infographic for on hover
-	window.plutoInfo = new PIXI.Graphics()
+	let plutoInfo = new PIXI.Graphics()
 		.lineStyle(2, 0xc3b6aa)
 		.beginFill(0x0c0d0c)
 		.setTransform(_, _, _, 2, _, _)
@@ -191,24 +177,19 @@ function setup() {
 	plutoText.position.set(65, 35); //moves text within the box
 	plutoInfo.addChild(plutoText);
 
-	let marsTexture = PIXI.Loader.shared.resources["./assets/mars.jpg"].texture;
-	marsTexture.frame = new PIXI.Rectangle(-250, -150, 250, 150);
-	let marsGraphic = new PIXI.Graphics()
-		.lineStyle(8, 0xc07158, 0.25, 0.8) //add atmostphere
-		.beginTextureFill(marsTexture)
+	let plutoTexture =
+		PIXI.Loader.shared.resources["./assets/plutomap1k.jpg"].texture;
+	plutoTexture.frame = new PIXI.Rectangle(0, 0, 200, 250); //Texture.frame (x, y, width, height)
+	let plutoGraphic = new PIXI.Graphics()
+		.lineStyle(7, 0xc3b6aa, 0.25, 0.5) //add atmostphere
+		.beginTextureFill(plutoTexture)
 		.setTransform(_, _, _, 2, _, _) //setTransform(x, y, x-scale,y-scale,xkew,yskew )
 		.drawCircle(0, 0, 60)
 		.endFill();
-	marsGraphic.interactive = true;
-	// planetContainer.addChild(marsGraphic);
-	let marsSettings = {
-		lineStyleOptions: {
-			width: 200,
-			color: 0xc07158,
-			alpha: 0.25,
-			alignment: 0.5
-		}
-	};
+	plutoGraphic.interactive = true;
+	plutoGraphic.hovering = false;
+	plutoGraphic.info = plutoInfo;
+	planetContainer.addChild(plutoGraphic);
 
 	let marsInfo = new PIXI.Graphics()
 		.lineStyle(2, 0xc07158)
@@ -218,7 +199,6 @@ function setup() {
 	marsInfo.zIndex = 10000;
 	marsInfo.visible = false;
 	planetContainer.addChild(marsInfo);
-	planetConstructor(marsGraphic, marsTexture, marsSettings);
 
 	let marsText = new PIXI.Text(
 		"Name: Bridgewater \nTitle: Associate \nYears: 2017-2018",
@@ -228,17 +208,18 @@ function setup() {
 	marsText.position.set(55, 35); //moves text within the box
 	marsInfo.addChild(marsText);
 
-	let cyberburnTexture =
-		PIXI.Loader.shared.resources["./assets/earthcloudmap.jpg"].texture;
-	cyberburnTexture.frame = new PIXI.Rectangle(0, 0, 400, 400); //Texture.frame (x, y, width, height)
-	let cyberburnGraphic = new PIXI.Graphics()
-		.lineStyle(18, 0xb3caff, 0.25, 0.5) //add atmostphere
-		.beginTextureFill(cyberburnTexture)
-		.setTransform(_, _, _, 2, _, _) //setTransform(x, y, x-scale,y-scale,xkew,yskew )
-		.drawCircle(0, 0, 90)
+	let marsTexture = PIXI.Loader.shared.resources["./assets/mars.jpg"].texture;
+	marsTexture.frame = new PIXI.Rectangle(-250, -150, 250, 150);
+	let marsGraphic = new PIXI.Graphics()
+		.lineStyle(8, 0xc07158, 0.25, 0.8) //add atmostphere
+		.beginTextureFill(marsTexture)
+		.setTransform(_, _, _, 2, _, _)
+		.drawCircle(0, 0, 60)
 		.endFill();
-	cyberburnGraphic.interactive = true;
-	planetContainer.addChild(cyberburnGraphic);
+	marsGraphic.interactive = true;
+	marsGraphic.hovering = false;
+	marsGraphic.info = marsInfo;
+	planetContainer.addChild(marsGraphic);
 
 	//create an infographic for on hover
 	let cyberburnInfo = new PIXI.Graphics()
@@ -258,6 +239,38 @@ function setup() {
 	cyberburnText.position.set(30, 30); //moves text within the box
 	cyberburnInfo.addChild(cyberburnText);
 
+	let cyberburnTexture =
+		PIXI.Loader.shared.resources["./assets/earthcloudmap.jpg"].texture;
+	cyberburnTexture.frame = new PIXI.Rectangle(0, 0, 400, 400); //Texture.frame (x, y, width, height)
+	let cyberburnGraphic = new PIXI.Graphics()
+		.lineStyle(18, 0xb3caff, 0.25, 0.5) //add atmostphere
+		.beginTextureFill(cyberburnTexture)
+		.setTransform(_, _, _, 2, _, _) //setTransform(x, y, x-scale,y-scale,xkew,yskew )
+		.drawCircle(0, 0, 90)
+		.endFill();
+	cyberburnGraphic.interactive = true;
+	cyberburnGraphic.hovering = false;
+	cyberburnGraphic.info = cyberburnInfo;
+	planetContainer.addChild(cyberburnGraphic);
+
+	//create an infographic for on hover
+	let otherInfo = new PIXI.Graphics()
+		.lineStyle(2, 0xc9b799)
+		.beginFill(0x0c0d0c)
+		.setTransform(_, _, _, 2, _, _)
+		.drawRoundedRect(0, 0, 400, 200, 50);
+	otherInfo.zIndex = 10000;
+	otherInfo.visible = false;
+	planetContainer.addChild(otherInfo);
+	//Create the text within the infographic
+	let otherText = new PIXI.Text(
+		"Tech and Programming Experience\nYears: 2009-2020",
+		planetTextOptions
+	);
+	otherText.style.align = "center";
+	otherText.position.set(25, 35);
+	otherInfo.addChild(otherText);
+
 	let otherTexture =
 		PIXI.Loader.shared.resources["./assets/jupiter1k.jpg"].texture;
 	otherTexture.frame = new PIXI.Rectangle(0, 0, 900, 450); //Texture.frame (x, y, width, height)
@@ -269,76 +282,61 @@ function setup() {
 		.drawCircle(0, 0, 120)
 		.endFill();
 	otherGraphic.interactive = true;
+	otherGraphic.hovering = false;
+	otherGraphic.info = otherInfo;
 	planetContainer.addChild(otherGraphic);
-
-	//create an infographic for on hover
-	let otherInfo = new PIXI.Graphics()
-		.lineStyle(2, 0xc9b799)
-		.beginFill(0x0c0d0c)
-		.setTransform(_, _, _, 2, _, _)
-		.drawRoundedRect(0, 0, 400, 200, 50);
-	otherInfo.zIndex = 10000;
-	otherInfo.visible = false;
-	planetContainer.addChild(otherInfo);
-
-	let otherText = new PIXI.Text(
-		"Tech and Programming Experience\nYears: 2009-2020",
-		planetTextOptions
-	);
-	otherText.style.align = "center";
-	otherText.position.set(25, 35);
-	otherInfo.addChild(otherText);
 
 	let sunOrbitControl = {
 		graphic: sunGraphic,
 		texture: sunTexture,
-		info: sunInfo,
 		orbitRadius: _,
 		speedFactor: _,
 		textureTickerFactor: 0.33,
 		hover: false,
-		step: _
+		step: _,
+		addHoverEffects: addHoverEffects
 	};
 
 	let plutoOrbitControl = {
 		graphic: plutoGraphic,
 		texture: plutoTexture,
-		info: plutoInfo,
 		orbitRadius: 300,
 		speedFactor: 1,
 		textureTickerFactor: 0.9,
 		hovering: false,
-		step: Math.floor(Math.random() * Math.floor(8000)) //randomize initial position
+		step: Math.floor(Math.random() * Math.floor(8000)), //randomize initial position
+		addHoverEffects: addHoverEffects
 	};
 	let marsOrbitControl = {
 		graphic: marsGraphic,
 		texture: marsTexture,
-		info: marsInfo,
 		orbitRadius: 450,
 		speedFactor: 1.1,
 		textureTickerFactor: 10,
 		hovering: false,
-		step: Math.floor(Math.random() * Math.floor(8000))
+		step: Math.floor(Math.random() * Math.floor(8000)),
+		addHoverEffects: addHoverEffects
 	};
 	let cyberburnOrbitControl = {
 		graphic: cyberburnGraphic,
 		texture: cyberburnTexture,
-		info: cyberburnInfo,
 		orbitRadius: 700,
 		speedFactor: 0.5,
 		textureTickerFactor: 4,
 		hovering: false,
-		step: Math.floor(Math.random() * Math.floor(8000))
+		step: Math.floor(Math.random() * Math.floor(8000)),
+		addHoverEffects: addHoverEffects
 	};
+
 	let otherOrbitControl = {
 		graphic: otherGraphic,
 		texture: otherTexture,
-		info: otherInfo,
 		orbitRadius: 950,
 		speedFactor: 1,
 		textureTickerFactor: 4,
-		hovering: false,
-		step: Math.floor(Math.random() * Math.floor(8000))
+		hovering: otherGraphic.hovering,
+		step: Math.floor(Math.random() * Math.floor(8000)),
+		addHoverEffects: addHoverEffects
 	};
 
 	let planetOrbitControlArr = [
@@ -349,37 +347,21 @@ function setup() {
 		otherOrbitControl
 	];
 
-	//Add event listeners
-	sunGraphic.on("mouseover", sunHoverEffects);
-	sunGraphic.on("mouseout", sunHoverEffects);
-	plutoGraphic.on("mouseover", plutoHoverEffects);
-	plutoGraphic.on("mouseout", plutoHoverEffects);
-	marsGraphic.on("mouseover", marsHoverEffects);
-	marsGraphic.on("mouseout", marsHoverEffects);
-	cyberburnGraphic.on("mouseover", cyberburnHoverEffects);
-	cyberburnGraphic.on("mouseout", cyberburnHoverEffects);
-	otherGraphic.on("mouseover", otherHoverEffects);
-	otherGraphic.on("mouseout", otherHoverEffects);
-	function sunHoverEffects() {
-		sunInfo.visible = !sunInfo.visible;
-		sunOrbitControl.hovering = !sunOrbitControl.hovering;
+	//Add event handlers to each planet
+	function addHoverEffects() {
+		this.graphic.on("mouseover", function() {
+			this.hovering = !this.hovering;
+			this.info.visible = !this.info.visible;
+		});
+		this.graphic.on("mouseout", function() {
+			this.hovering = !this.hovering;
+			this.info.visible = !this.info.visible;
+		});
 	}
-	function plutoHoverEffects() {
-		plutoInfo.visible = !plutoInfo.visible;
-		plutoOrbitControl.hovering = !plutoOrbitControl.hovering;
-	}
-	function marsHoverEffects() {
-		marsInfo.visible = !marsInfo.visible;
-		marsOrbitControl.hovering = !marsOrbitControl.hovering;
-	}
-	function cyberburnHoverEffects() {
-		cyberburnInfo.visible = !cyberburnInfo.visible;
-		cyberburnOrbitControl.hovering = !cyberburnOrbitControl.hovering;
-	}
-	function otherHoverEffects() {
-		otherInfo.visible = !otherInfo.visible;
-		otherOrbitControl.hovering = !otherOrbitControl.hovering;
-	}
+	//kick off the event handlers
+	planetOrbitControlArr.map(planet => {
+		planet.addHoverEffects();
+	});
 
 	function animatePlanetTextures(planetOrbitControlArr, delta) {
 		//Controls the positioning and texture scrolling of all planets
@@ -391,7 +373,7 @@ function setup() {
 			planet.graphic.geometry.invalidate();
 			//positioning of planet and infoText
 			if (planet.orbitRadius) {
-				if (!planet.hovering) {
+				if (!planet.graphic.hovering) {
 					planet.step += delta;
 					planet.graphic.position.set(
 						Math.cos(planet.step * planetSpeed * planet.speedFactor) *
@@ -399,7 +381,7 @@ function setup() {
 						Math.sin(planet.step * planetSpeed * planet.speedFactor) *
 							planet.orbitRadius
 					);
-					planet.info.position.set(
+					planet.graphic.info.position.set(
 						Math.cos(planet.step * planetSpeed * planet.speedFactor) *
 							planet.orbitRadius,
 						Math.sin(planet.step * planetSpeed * planet.speedFactor) *
