@@ -21,6 +21,7 @@ COMPLETED:
 20. Set z-index of info boxes to always be highest DONE 03/20
 22. Solve the whole delta/step problem with DONE 03/16
 28. understand z-index and see if you can shrink the orbits. DONE 03/20
+33. Cleanup the event listeners section DRY CODE  DONE 03/27
 35. look to see if isometry plane is necessary of if everything should be inside of the planetContainer instead. DONE 03/22
 36. Make the blinking of the stars have an easy speed control DONE 03/22
 38. Make the stars have a maxScale based off their random initial scale (note: rejected - max is randomized via initial anyays) DONE 03/22
@@ -38,7 +39,7 @@ TO DO:
 30. Add in an animated background (LARGEST NICE TO HAVE BUT WILL USE EVERYWHERE)
 31. Get rid of the random 200 in texture ticker update
 32. Properly adjust the wordWrapWidth on info boxes
-33. Cleanup the event listeners section DRY CODE  -- wait until React import
+
 34. Add in contact me icons in navbar
 
 NICE TO HAVES:
@@ -81,11 +82,6 @@ planetContainer.position.set(app.screen.width / 2, app.screen.height / 2);
 planetContainer.sortableChildren = true;
 app.stage.addChild(planetContainer);
 
-//Is this actually necessary? Why don't I just have everything in the planet container instead?
-const isometryPlane = new PIXI.Graphics();
-isometryPlane.zIndex = -10000;
-planetContainer.addChild(isometryPlane);
-
 //create the loader
 const loader = PIXI.Loader.shared;
 loader
@@ -107,7 +103,7 @@ function setup() {
 	//Cinzel|Noto+Serif|Titilliu
 	let planetTextOptions = {
 		fontFamily: "Noto+Serif",
-		fontSize: 35,
+		fontSize: 37,
 		fill: "white",
 		fontWeight: "800",
 		wordWrap: true,
@@ -128,7 +124,7 @@ function setup() {
 
 	let sunText = new PIXI.Text("About\nThis\nSite", planetTextOptions);
 	sunText.position.set(
-		sunInfo.width / 4 + sunText.width / 4,
+		sunInfo.width - sunText.width,
 		sunInfo.height / 10 - sunText.height / 5
 	);
 	sunText.style.fontSize = 50;
@@ -174,7 +170,7 @@ function setup() {
 		planetTextOptions
 	);
 	plutoText.style.align = "center";
-	plutoText.position.set(65, 35); //moves text within the box
+	plutoText.position.set(61, 35); //moves text within the box
 	plutoInfo.addChild(plutoText);
 
 	let plutoTexture =
@@ -205,7 +201,7 @@ function setup() {
 		planetTextOptions
 	);
 	marsText.style.align = "center";
-	marsText.position.set(55, 35); //moves text within the box
+	marsText.position.set(48, 35); //moves text within the box
 	marsInfo.addChild(marsText);
 
 	let marsTexture = PIXI.Loader.shared.resources["./assets/mars.jpg"].texture;
@@ -236,7 +232,7 @@ function setup() {
 		planetTextOptions
 	);
 	cyberburnText.style.align = "center";
-	cyberburnText.position.set(30, 30); //moves text within the box
+	cyberburnText.position.set(22, 30); //moves text within the box
 	cyberburnInfo.addChild(cyberburnText);
 
 	let cyberburnTexture =
@@ -268,12 +264,12 @@ function setup() {
 		planetTextOptions
 	);
 	otherText.style.align = "center";
-	otherText.position.set(25, 35);
+	otherText.position.set(18, 35);
 	otherInfo.addChild(otherText);
 
 	let otherTexture =
 		PIXI.Loader.shared.resources["./assets/jupiter1k.jpg"].texture;
-	otherTexture.frame = new PIXI.Rectangle(0, 0, 900, 450); //Texture.frame (x, y, width, height)
+	otherTexture.frame = new PIXI.Rectangle(0, 0, 900, 450);
 
 	let otherGraphic = new PIXI.Graphics()
 		.lineStyle(12, 0xf2ddbb, 0.25, 0.5) //add atmostphere
@@ -294,7 +290,7 @@ function setup() {
 		textureTickerFactor: 0.33,
 		hover: false,
 		step: _,
-		addHoverEffects: addHoverEffects
+		hoverEffects: hoverEffects
 	};
 
 	let plutoOrbitControl = {
@@ -305,7 +301,7 @@ function setup() {
 		textureTickerFactor: 0.9,
 		hovering: false,
 		step: Math.floor(Math.random() * Math.floor(8000)), //randomize initial position
-		addHoverEffects: addHoverEffects
+		hoverEffects: hoverEffects
 	};
 	let marsOrbitControl = {
 		graphic: marsGraphic,
@@ -315,7 +311,7 @@ function setup() {
 		textureTickerFactor: 10,
 		hovering: false,
 		step: Math.floor(Math.random() * Math.floor(8000)),
-		addHoverEffects: addHoverEffects
+		hoverEffects: hoverEffects
 	};
 	let cyberburnOrbitControl = {
 		graphic: cyberburnGraphic,
@@ -325,7 +321,7 @@ function setup() {
 		textureTickerFactor: 4,
 		hovering: false,
 		step: Math.floor(Math.random() * Math.floor(8000)),
-		addHoverEffects: addHoverEffects
+		hoverEffects: hoverEffects
 	};
 
 	let otherOrbitControl = {
@@ -336,7 +332,7 @@ function setup() {
 		textureTickerFactor: 4,
 		hovering: otherGraphic.hovering,
 		step: Math.floor(Math.random() * Math.floor(8000)),
-		addHoverEffects: addHoverEffects
+		hoverEffects: hoverEffects
 	};
 
 	let planetOrbitControlArr = [
@@ -347,8 +343,18 @@ function setup() {
 		otherOrbitControl
 	];
 
-	//Add event handlers to each planet
-	function addHoverEffects() {
+	//Build Orbital Lines
+	//Kick off the event handlers
+	const isometryPlane = new PIXI.Graphics();
+	isometryPlane.zIndex = -10000;
+	isometryPlane.lineStyle(1.5, 0xffffff);
+	planetContainer.addChild(isometryPlane);
+	planetOrbitControlArr.map(planet => {
+		isometryPlane.drawCircle(0, 0, planet.orbitRadius);
+		planet.hoverEffects();
+	});
+	//Event handlers for planets
+	function hoverEffects() {
 		this.graphic.on("mouseover", function() {
 			this.hovering = !this.hovering;
 			this.info.visible = !this.info.visible;
@@ -358,10 +364,6 @@ function setup() {
 			this.info.visible = !this.info.visible;
 		});
 	}
-	//kick off the event handlers
-	planetOrbitControlArr.map(planet => {
-		planet.addHoverEffects();
-	});
 
 	function animatePlanetTextures(planetOrbitControlArr, delta) {
 		//Controls the positioning and texture scrolling of all planets
@@ -393,12 +395,6 @@ function setup() {
 			planet.graphic.zIndex = Math.floor(planet.graphic.position.y);
 		});
 	}
-
-	//Build Orbital Lines
-	isometryPlane.lineStyle(1.5, 0xffffff);
-	planetOrbitControlArr.map(planet => {
-		isometryPlane.drawCircle(0, 0, planet.orbitRadius);
-	});
 
 	//ADD IN DYNAMIC BACKGROUND
 	//Create the container to hold all stars
