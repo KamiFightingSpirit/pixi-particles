@@ -56,11 +56,9 @@ GOOD: Add in additional hover effects for planets (highlighting, etc)
 11. Get rid of stars that spawn on orbital lines
 */
 
-import hoverEffects from "./solarSystemHoverEffects.js";
-
 PIXI.utils.skipHello(); // remove pixi message in console
 
-var canvas = document.getElementById("stage");
+var canvas = document.getElementById("canvas");
 var rendererOptions = {
 	width: window.innerWidth,
 	height: window.innerHeight,
@@ -79,24 +77,27 @@ const planetContainer = new PIXI.Container();
 planetContainer.scale.y = 0.2;
 planetContainer.scale.x = 0.5;
 planetContainer.position.set(app.screen.width / 2, app.screen.height / 2);
+console.log(app.screen);
 planetContainer.sortableChildren = true;
 app.stage.addChild(planetContainer);
 
 //create the loader
-const loader = PIXI.Loader.shared;
+const baseUrl = "./assets/";
+const loader = new PIXI.Loader(baseUrl);
+
 loader
-	.add("./assets/earthcloudmap.jpg") //cyberburn
-	.add("./assets/jupiter1k.jpg")
-	.add("./assets/jupitermap.jpg")
-	.add("./assets/mars.jpg") //mars
-	.add("./assets/mercurymap.jpg")
-	.add("./assets/plutomap1k.jpg") //pluto
-	.add("./assets/plutoShrunk.jpg")
-	.add("./assets/sun.jpg")
-	.add("./assets/sunShrunk.jpg") //sun
-	.add("./assets/venusbump.jpg")
-	.add("./assets/venusmap.jpg")
-	.add("./assets/bgassets/particlefromeditor.png")
+	.add("earthcloudmap.jpg") //cyberburn
+	.add("jupiter1k.jpg")
+	.add("jupitermap.jpg")
+	.add("mars.jpg") //mars
+	.add("mercurymap.jpg")
+	.add("plutomap1k.jpg") //pluto
+	.add("plutoShrunk.jpg")
+	.add("sun.jpg")
+	.add("sunShrunk.jpg") //sun
+	.add("venusbump.jpg")
+	.add("venusmap.jpg")
+	.add("bgassets/particlefromeditor.png")
 	.load(setup);
 
 function setup() {
@@ -131,8 +132,7 @@ function setup() {
 	sunText.style.align = "center";
 	sunInfo.addChild(sunText);
 
-	let sunTexture =
-		PIXI.Loader.shared.resources["./assets/sunShrunk.jpg"].texture;
+	let sunTexture = loader.resources["sunShrunk.jpg"].texture;
 	sunTexture.frame = new PIXI.Rectangle(2, 0, 200, 100);
 	let sunGraphic = new PIXI.Graphics()
 		//add a semi-transparent corona
@@ -173,8 +173,7 @@ function setup() {
 	plutoText.position.set(61, 35); //moves text within the box
 	plutoInfo.addChild(plutoText);
 
-	let plutoTexture =
-		PIXI.Loader.shared.resources["./assets/plutomap1k.jpg"].texture;
+	let plutoTexture = loader.resources["plutomap1k.jpg"].texture;
 	plutoTexture.frame = new PIXI.Rectangle(0, 0, 200, 250); //Texture.frame (x, y, width, height)
 	let plutoGraphic = new PIXI.Graphics()
 		.lineStyle(7, 0xc3b6aa, 0.25, 0.5) //add atmostphere
@@ -204,7 +203,7 @@ function setup() {
 	marsText.position.set(48, 35); //moves text within the box
 	marsInfo.addChild(marsText);
 
-	let marsTexture = PIXI.Loader.shared.resources["./assets/mars.jpg"].texture;
+	let marsTexture = loader.resources["mars.jpg"].texture;
 	marsTexture.frame = new PIXI.Rectangle(-250, -150, 250, 150);
 	let marsGraphic = new PIXI.Graphics()
 		.lineStyle(8, 0xc07158, 0.25, 0.8) //add atmostphere
@@ -232,11 +231,10 @@ function setup() {
 		planetTextOptions
 	);
 	cyberburnText.style.align = "center";
-	cyberburnText.position.set(22, 30); //moves text within the box
+	cyberburnText.position.set(20, 30); //moves text within the box
 	cyberburnInfo.addChild(cyberburnText);
 
-	let cyberburnTexture =
-		PIXI.Loader.shared.resources["./assets/earthcloudmap.jpg"].texture;
+	let cyberburnTexture = loader.resources["earthcloudmap.jpg"].texture;
 	cyberburnTexture.frame = new PIXI.Rectangle(0, 0, 400, 400); //Texture.frame (x, y, width, height)
 	let cyberburnGraphic = new PIXI.Graphics()
 		.lineStyle(18, 0xb3caff, 0.25, 0.5) //add atmostphere
@@ -260,15 +258,14 @@ function setup() {
 	planetContainer.addChild(otherInfo);
 	//Create the text within the infographic
 	let otherText = new PIXI.Text(
-		"Tech and Programming Experience\nYears: 2009-2020",
+		"Tech and Programming Experience\nYears: 2009-Today",
 		planetTextOptions
 	);
 	otherText.style.align = "center";
-	otherText.position.set(18, 35);
+	otherText.position.set(14, 35);
 	otherInfo.addChild(otherText);
 
-	let otherTexture =
-		PIXI.Loader.shared.resources["./assets/jupiter1k.jpg"].texture;
+	let otherTexture = loader.resources["jupiter1k.jpg"].texture;
 	otherTexture.frame = new PIXI.Rectangle(0, 0, 900, 450);
 
 	let otherGraphic = new PIXI.Graphics()
@@ -288,7 +285,6 @@ function setup() {
 		orbitRadius: _,
 		speedFactor: _,
 		textureTickerFactor: 0.33,
-		hover: false,
 		step: _,
 		hoverEffects: hoverEffects
 	};
@@ -299,7 +295,6 @@ function setup() {
 		orbitRadius: 300,
 		speedFactor: 1,
 		textureTickerFactor: 0.9,
-		hovering: false,
 		step: Math.floor(Math.random() * Math.floor(8000)), //randomize initial position
 		hoverEffects: hoverEffects
 	};
@@ -309,7 +304,6 @@ function setup() {
 		orbitRadius: 450,
 		speedFactor: 1.1,
 		textureTickerFactor: 10,
-		hovering: false,
 		step: Math.floor(Math.random() * Math.floor(8000)),
 		hoverEffects: hoverEffects
 	};
@@ -319,7 +313,6 @@ function setup() {
 		orbitRadius: 700,
 		speedFactor: 0.5,
 		textureTickerFactor: 4,
-		hovering: false,
 		step: Math.floor(Math.random() * Math.floor(8000)),
 		hoverEffects: hoverEffects
 	};
@@ -330,7 +323,6 @@ function setup() {
 		orbitRadius: 950,
 		speedFactor: 1,
 		textureTickerFactor: 4,
-		hovering: otherGraphic.hovering,
 		step: Math.floor(Math.random() * Math.floor(8000)),
 		hoverEffects: hoverEffects
 	};
@@ -368,7 +360,7 @@ function setup() {
 	function animatePlanetTextures(planetOrbitControlArr, delta) {
 		//Controls the positioning and texture scrolling of all planets
 		planetOrbitControlArr.map(planet => {
-			//texture scrolling
+			//gives the appearance of the planet rotating
 			planet.texture.frame.width =
 				200 + textureTicker * planet.textureTickerFactor;
 			planet.texture.updateUvs();
@@ -403,9 +395,7 @@ function setup() {
 	staticStarContainer.position.set(0, 0);
 	staticStarContainer.zIndex = -1;
 	app.stage.addChild(staticStarContainer);
-	let starTexture =
-		PIXI.Loader.shared.resources["./assets/bgassets/particlefromeditor.png"]
-			.texture;
+	let starTexture = loader.resources["bgassets/particlefromeditor.png"].texture;
 
 	addStarSprites();
 	//ADD STATIONARY STARS RANDOMLY THROUGHOUT THE CANVAS
